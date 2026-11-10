@@ -14,7 +14,7 @@
 <p align="center">
   <a href="https://saschaarend.github.io/eZSuite/"><strong>🌐 Interaktive Landingpage & Config-Generator öffnen</strong></a>
   &nbsp;·&nbsp;
-  <a href="https://raw.githubusercontent.com/SaschaArend/eZSuite/main/update.bat"><strong>⬇️ Installer (update.bat) herunterladen</strong></a>
+  <a href="https://saschaarend.github.io/eZSuite/?download=installer"><strong>⬇️ Installer (update.bat) herunterladen</strong></a>
   &nbsp;·&nbsp;
   <a href="#-schnellstart-in-60-sekunden"><strong>🚀 Installation</strong></a>
 </p>
@@ -155,7 +155,7 @@ flowchart LR
 
 ## 🚀 Schnellstart in 60 Sekunden
 
-1. **[`update.bat` herunterladen](https://raw.githubusercontent.com/SaschaArend/eZSuite/main/update.bat)** und per Doppelklick ausführen.
+1. **[`update.bat` herunterladen](https://saschaarend.github.io/eZSuite/?download=installer)** und per Doppelklick ausführen.
 2. Bei der Erstinstallation lädt das Skript automatisch die aktuelle Version nach `%USERPROFILE%\eZSuite` und fragt ab, welche der 4 Module du aktivieren möchtest.
 3. Chrome öffnet sich automatisch mit `chrome://extensions`:
    - Oben rechts den Schalter **Entwicklermodus** aktivieren.
