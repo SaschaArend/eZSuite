@@ -107,7 +107,7 @@ if "%FIRST_INSTALL%"=="0" (
 
     if "!LOCAL_VERSION!"=="!NEW_VERSION!" (
         color 0A
-        echo Deine Version (v!LOCAL_VERSION!) ist bereits aktuell!
+        echo Deine Version ^(v!LOCAL_VERSION!^) ist bereits aktuell!
         set /p "CHOICE=Moechtest du sie trotzdem neu installieren? (J/N): "
         if /i "!CHOICE!" neq "J" (
             echo.
@@ -119,7 +119,7 @@ if "%FIRST_INSTALL%"=="0" (
             exit /b
         )
     ) else (
-        echo Ein neues Update ist verfuegbar (v!LOCAL_VERSION! -^> v!NEW_VERSION!)!
+        echo Ein neues Update ist verfuegbar ^(v!LOCAL_VERSION! -^> v!NEW_VERSION!^)!
     )
 )
 
@@ -149,7 +149,7 @@ if "%FIRST_INSTALL%"=="1" (
         echo ===============================================================
         echo.
         echo Bitte waehle aus, welche der 4 Tools du in der eZSuite nutzen
-        echo moechtest (J = Aktivieren, N = Ausblenden, Enter = J):
+        echo moechtest ^(J = Aktivieren, N = Ausblenden, Enter = J^):
         echo.
 
         set "USE_NOTES=true"
@@ -228,7 +228,7 @@ if "%FIRST_INSTALL%"=="1" (
     echo UPDATE ERFOLGREICH ABGESCHLOSSEN!
     echo ===============================================================
     echo.
-    echo Die Erweiterung wurde aktualisiert (bestehende config.json blieb erhalten).
+    echo Die Erweiterung wurde aktualisiert ^(bestehende config.json blieb erhalten^).
     echo.
     echo Das Fenster schliesst sich automatisch in 5 Sekunden...
     timeout /t 5 >nul
