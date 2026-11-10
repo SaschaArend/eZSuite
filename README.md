@@ -1,40 +1,142 @@
-# eZSuite
+<div align="center">
 
-**eZSuite** ist eine modulare, hochperformante Chrome-Erweiterung, die vier spezialisierte Produktivitäts-Tools unter einer gemeinsamen Oberfläche vereint:
-1. **eZNotes** – Automatisierte Prozess-Dokumentation, Screenshots, Editor & RPA-Guides
-2. **eZTimeTracker** – Intelligente Zeiterfassung, Ticket-Integration & PDF/CSV/Markdown-Export
-3. **eZClip** – Text- & Clipboard-Studio mit Quick-Actions, Formatierung & Verlauf
-4. **eZSnippetZ** – Code- & Text-Snippet-Vault inkl. Infor LN 4GL Tools, `//` Live-Web-Expander & dynamischen Variablen
+<img src="icons/SuiteIcon.png" alt="eZSuite Icon" width="84" />
 
----
+# eZSuite 3.0
 
-## ✨ Die 4 Module im Überblick (v3.0)
+**Die modulare Productivity- & ERP-Engineering-Suite für Google Chrome**
 
-### 1. 📝 eZNotes – Dokumentation & Prozess-Aufzeichnung
-- **Smart-Capture**: Automatisches Erfassen von Screenshots und Metadaten (Seitentitel, Feldnamen, Session-Details, CSS-Selektoren) bei jedem Mausklick.
-- **Editor & Datenschutz**: DSGVO-konformes Verpixelungs-Werkzeug (Blur-Tool), Smart-Cropping, Fokus-Marker (Rechtecke, Pfeile), Kapitel-Trenner sowie Undo/Redo.
-- **Auto-Save & Bibliothek**: Rollierender Auto-Save-Verlauf (15 Stände) sowie lokale Ordner-Synchronisation über die File System Access API inkl. Versionshistorie und Bulk-Merge.
-- **Vielfältige Exporte**: Druckoptimierter PDF-Export, YouTrack-Markdown, interaktive Browser-Slideshow, Offline-HTML-Tour und Live-Overlay-Guide.
+[![Version](https://img.shields.io/badge/Release-v3.0-4f46e5?style=for-the-badge&logo=googlechrome&logoColor=white)](https://github.com/SaschaArend/eZSuite)
+[![Manifest V3](https://img.shields.io/badge/Chrome-Manifest_V3-10b981?style=for-the-badge)](https://developer.chrome.com/docs/extensions/mv3/)
+[![Infor LN](https://img.shields.io/badge/ERP-Infor_LN_%2F_4GL_Ready-f59e0b?style=for-the-badge)](#4--ezsnippetz--code-vault--live-web-expander)
+[![Storage](https://img.shields.io/badge/Privacy-100%25_Local_&_FileSystem_Sync-0f172a?style=for-the-badge)](#-architektur--datenhaltung)
 
-### 2. ⏱️ eZTimeTracker – Zeiterfassung & Auswertung
-- **Live- & Manuelle Erfassung**: Schnelles Ein-/Ausstempeln direkt im Popup oder detaillierte Buchung im Dashboard.
-- **YouTrack Ticket-Ansicht**: CSV-Import und direkte Buchung auf Tickets inkl. Filterung und Status-Übersicht.
-- **Reporting**: Export als gebrandetes PDF, CSV oder Markdown nach Tag, Woche, Monat oder Jahr.
+<p align="center">
+  <a href="https://saschaarend.github.io/eZSuite/"><strong>🌐 Interaktive Landingpage & Config-Generator öffnen</strong></a>
+  &nbsp;·&nbsp;
+  <a href="https://raw.githubusercontent.com/SaschaArend/eZSuite/main/update.bat"><strong>⬇️ Installer (update.bat) herunterladen</strong></a>
+  &nbsp;·&nbsp;
+  <a href="#-schnellstart-in-60-sekunden"><strong>🚀 Installation</strong></a>
+</p>
 
-### 3. 📋 eZClip – Text & Clipboard Transformer
-- **Quick-Actions im Popup**: Bis zu 4 frei wählbare Schnellaktionen direkt im Popup mit einem Klick auf die Zwischenablage anwenden.
-- **eZClip Studio**: Vollwertiger Tab-Editor für Clean/Trim, Case-Konvertierungen (`camelCase`, `snake_case`, `kebab-case`), JSON-Formatter, SQL-IN-Quoter, Sort & Unique, URL/Base64 sowie Suchen & Ersetzen (inkl. RegEx) und Clipboard-Historie.
-
-### 4. 💻 eZSnippetZ – Personal Code & Snippet Vault
-- **Live Web-Expander (`//`) & Kontextmenü**: Tippe in jedem beliebigen Textfeld im Browser `//` oder nutze das Rechtsklick-Menü (*„eZSnippetZ einfügen“*), um Snippets direkt einzufügen.
-- **Dynamische Variablen & Live-Vorschau**: Unterstützt Platzhalter wie `{Name=Standard}`, Dropdowns `{Prio=[Hoch,Mittel,Tief]}`, `{Notiz:multiline}`, `{Code:uppercase}`, Datumsberechnung `{Datum+14}`, `{Clipboard}`, bedingte Blöcke `{#if Var}...{#else}...{/if}`, verschachtelte Snippets `[[Titel]]` sowie Globale Variablen.
-- **Infor LN 4GL & Ordner-Sync**: Integrierter BaanC/4GL-Code-Formatter, Linter, Tabellen-Lexikon (`tccom100`, `tcibd001`, `tdsls400` u.v.m.), 30-Tage-Papierkorb und lokale Ordner-Synchronisation.
+</div>
 
 ---
 
-## ⚙️ Modul-Steuerung über `config.json`
+## 🧩 4 Werkzeuge. 1 zentrale Erweiterung.
 
-Über die Datei `config.json` im Hauptverzeichnis lässt sich steuern, welche der 4 Tools in der Erweiterung sichtbar und aktiv sind:
+**eZSuite** ersetzt vier separate Einzel-Tools durch eine einheitliche, blitzschnelle Chrome-Erweiterung. Über das ziehbare Logo-Karussell im Popup wechselst du nahtlos zwischen den Modulen – oder blendest nicht benötigte Tools per [`config.json`](config.json) für einzelne Teams komplett aus.
+
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <p align="center">
+        <img src="assets/logo.png" alt="eZNotes" height="36" />
+      </p>
+      <h3 align="center">01 · eZNotes</h3>
+      <p align="center"><em>Automatisierte Prozess- & Klick-Dokumentation</em></p>
+      <ul>
+        <li><b>Smart-Capture:</b> Erfasst bei jedem Klick automatisch zugeschnittene JPEG-Screenshots inkl. ERP-Session- & Feldnamen.</li>
+        <li><b>Editor & DSGVO-Blur:</b> Sensible Daten verpixeln, Fokus-Rahmen, Richtungspfeile & Kapitel-Trenner setzen.</li>
+        <li><b>Multi-Export:</b> Gebrandetes PDF-Handbuch, YouTrack-Markdown, Offline-HTML-Tour & Live-Overlay-Guide.</li>
+      </ul>
+    </td>
+    <td width="50%" valign="top">
+      <p align="center">
+        <img src="assets/timetracker_logo.png" alt="eZTimeTracker" height="36" />
+      </p>
+      <h3 align="center">02 · eZTimeTracker</h3>
+      <p align="center"><em>Zeiterfassung & YouTrack-Ticket-Reporting</em></p>
+      <ul>
+        <li><b>1-Klick Stempeluhr:</b> Live-Timer direkt im Popup oder manuelle Nachbuchung im Dashboard.</li>
+        <li><b>YouTrack-Integration:</b> CSV-Ticket-Import mit Status-Filter, Fälligkeits-Warnung und Direktbuchung.</li>
+        <li><b>Berichte:</b> PDF-Stundennachweise (mit eigenem Firmenlogo), CSV- und Markdown-Export.</li>
+      </ul>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <p align="center">
+        <img src="assets/clip_logo.png" alt="eZClip" height="36" />
+      </p>
+      <h3 align="center">03 · eZClip</h3>
+      <p align="center"><em>Text- & Clipboard-Transformations-Studio</em></p>
+      <ul>
+        <li><b>Popup Quick-Actions:</b> Bis zu 4 frei belegbare Schnellaktionen transformieren die Zwischenablage mit 1 Klick.</li>
+        <li><b>14 Entwickler-Transformer:</b> SQL-<code>IN</code>-Quoter, JSON-Formatter, Sort & Unique, Case-Konverter, Base64 & URL-Codec.</li>
+        <li><b>RegEx & Verlauf:</b> Suchen/Ersetzen inkl. RegEx sowie chronologische Clipboard-Historie.</li>
+      </ul>
+    </td>
+    <td width="50%" valign="top">
+      <p align="center">
+        <img src="assets/snippetz_logo.png" alt="eZSnippetZ" height="36" />
+      </p>
+      <h3 align="center">04 · eZSnippetZ</h3>
+      <p align="center"><em>Code-Vault, Infor LN 4GL Tools & Web-Expander</em></p>
+      <ul>
+        <li><b><code>//</code> Live Web-Expander:</b> Tippe in jedem beliebigen Browser-Textfeld <code>//</code> zum direkten Einfügen von Snippets.</li>
+        <li><b>Dynamische Variablen:</b> Unterstützt Dropdowns, Datumsrechner, Bedingungen (<code>#if</code>) & Live-Vorschau.</li>
+        <li><b>Infor LN 4GL Suite:</b> Integrierter BaanC-Formatter, Linter, Tabellen-Lexikon & lokale Ordner-Synchronisation.</li>
+      </ul>
+    </td>
+  </tr>
+</table>
+
+---
+
+## ⚡ Highlight: `eZSnippetZ` Live-Expander & Variablen-Syntax
+
+Egal ob in **YouTrack**, **Jira**, **Infor LN Web-UI** oder im **Webmail**: Tippe einfach `//` (z. B. `//select`) in ein Eingabefeld oder wähle **Rechtsklick → eZSnippetZ einfügen**.
+
+```baanc
+| Select ${TABLE:tcibd001} mit dynamischen Platzhaltern
+db.retry.point()
+select  ${TABLE:tcibd001}.*
+from    ${TABLE:tcibd001} for update
+where   ${TABLE:tcibd001}._index1 = {:${KEY:i.item}}
+selectdo
+    | Bearbeiter: {Name} am {Datum} (Frist: {Datum+14})
+    | Priorität:  {Prio=[Hoch,Mittel,Tief]}
+    dal.change.object("${TABLE:tcibd001}")
+    ret = dal.save.object("${TABLE:tcibd001}")
+    if ret = 0 then
+        commit.transaction()
+    else
+        abort.transaction()
+    endif
+endselect
+```
+
+### Unterstützte Platzhalter-Befehle
+
+| Syntax | Funktion | Beispiel-Ausgabe |
+| :--- | :--- | :--- |
+| `{Variable}` / `${VAR:Standard}` | Fragt den Wert beim Einfügen/Kopieren im Dialog ab | *Benutzereingabe* |
+| `{Name=Max Mustermann}` | Textfeld mit vorausgefülltem Standardwert | `Max Mustermann` |
+| `{Prio=[Hoch,Mittel,Tief]}` | Erzeugt ein **Dropdown-Auswahlmenü** im Abfrage-Dialog | `Hoch` |
+| `{Notiz:multiline}` | Erzeugt ein **mehrzeiliges Textfeld** im Abfrage-Dialog | *Mehrzeiliger Text* |
+| `{Kuerzel:uppercase}` | Wandelt die Eingabe automatisch in GROSSBUCHSTABEN um | `SAR` |
+| `{Datum}` / `{Datum+14}` | Aktuelles Tagesdatum (optional `+X` oder `-X` Tage) | `24.11.2026` |
+| `{Uhrzeit}` / `{Clipboard}` | Aktuelle Uhrzeit bzw. aktueller Inhalt der Zwischenablage | `09:45` |
+| `{#if Var}Text{#else}Alt{/if}` | **Bedingter Block** (nur aktiv, wenn `Var` ausgefüllt ist) | *Dynamisch* |
+| `[[Titel]]` / `{Snippet:Titel}` | Bindet ein anderes Snippet rekursiv an dieser Stelle ein | *Snippet-Inhalt* |
+
+---
+
+## 🛠️ Modul-Steuerung & Team-Rollout (`config.json`)
+
+Mit der Datei [`config.json`](config.json) im Programmordner steuerst du zentral, welche der 4 Werkzeuge sichtbar und aktiv sind. Nicht benötigte Module werden im Popup-Karussell und in den Hintergrund-Skripten vollständig ausgeblendet.
+
+```mermaid
+flowchart LR
+    A["update.bat starten"] --> B{"Bereits installiert?"}
+    B -- "Nein (Erstinstallation)" --> C["GitHub Release laden"]
+    C --> D{"config.json beigelegt?"}
+    D -- "Ja" --> E["Vorgegebene config.json übernehmen"]
+    D -- "Nein" --> F["Interaktive Abfrage (4 Module J/N)"]
+    B -- "Ja (Update)" --> G["Bestehende config.json sichern & Dateien aktualisieren"]
+    E & F & G --> H["eZSuite zeigt exakt die freigeschalteten Tools"]
+```
 
 ```json
 {
@@ -45,18 +147,42 @@
 }
 ```
 
-Tools mit dem Wert `false` werden im Popup-Karussell sowie in den Hintergrund-Diensten automatisch ausgeblendet.
+> [!TIP]
+> **Vorkonfigurierter Rollout für Kollegen:**
+> Auf der **[interaktiven Projektseite](https://saschaarend.github.io/eZSuite/#configurator)** kannst du dir per Klick eine individuelle `config.json` zusammenklicken, herunterladen und direkt zusammen mit der `update.bat` weitergeben.
 
 ---
 
-## 🚀 Installation & Update (`update.bat`)
+## 🚀 Schnellstart in 60 Sekunden
 
-1. Führe die Datei `update.bat` aus:
-   - **Erstinstallation**: Lädt das Tool von GitHub herunter, fragt interaktiv ab, welche der 4 Module genutzt werden sollen (sofern keine fertige `config.json` beigelegt wurde) und erstellt die `config.json`.
-   - **Update**: Aktualisiert eine bestehende Installation auf die neueste GitHub-Version, wobei deine lokale `config.json` unverändert erhalten bleibt.
-2. Öffne Google Chrome und navigiere zu `chrome://extensions/`.
-3. Aktiviere oben rechts den **Entwicklermodus**.
-4. Klicke auf **Entpackte Erweiterung laden** und wähle den Installationsordner aus.
+1. **[`update.bat` herunterladen](https://raw.githubusercontent.com/SaschaArend/eZSuite/main/update.bat)** und per Doppelklick ausführen.
+2. Bei der Erstinstallation lädt das Skript automatisch die aktuelle Version nach `%USERPROFILE%\eZSuite` und fragt ab, welche der 4 Module du aktivieren möchtest.
+3. Chrome öffnet sich automatisch mit `chrome://extensions`:
+   - Oben rechts den Schalter **Entwicklermodus** aktivieren.
+   - Oben links auf **Entpackte Erweiterung laden** klicken.
+   - Den Ordner `%USERPROFILE%\eZSuite` auswählen.
 
 ---
-*Copyright © 2026 Sascha Arend.*
+
+## ⌨️ Wichtige Tastenkürzel
+
+| Tastenkürzel | Bereich | Aktion |
+| :--- | :--- | :--- |
+| `//` + *Suchbegriff* | Jede Webseite | Öffnet den **eZSnippetZ** Live-Expander direkt am Cursor |
+| `Strg + K` | eZSnippetZ Vault | Öffnet die **Command Palette** zur Blitz-Suche & Kopie |
+| `Strg + Z` / `Strg + Y` | eZNotes Editor | Unbegrenztes Rückgängig / Wiederherstellen für Marker & Edits |
+| `Strg + S` / `C` / `D` | eZSuite Popup | Quick-Save / Aktuellen Screenshot kopieren / Direkt-Download |
+
+---
+
+## 🔒 Architektur & Datenhaltung
+
+- **100 % Lokal & Offline-fähig:** Keine externen Server, keine Cloud-Zwänge, keine Telemetrie.
+- **IndexedDB Binary Blob Engine:** `eZNotes` speichert hochauflösende Screenshots als komprimierte Binär-Blobs direkt in IndexedDB und hält das `chrome.storage.local` frei – selbst Sessions mit über 100 Schritten laufen verzögerungsfrei.
+- **File System Access API:** Sowohl die `eZNotes`-Bibliothek als auch der `eZSnippetZ`-Vault lassen sich direkt mit lokalen Ordnern auf deiner Festplatte (oder einem Netzlaufwerk/OneDrive) synchronisieren.
+
+---
+
+<div align="center">
+  <sub>Entwickelt mit Fokus auf Präzision und Geschwindigkeit · <b>Copyright © 2026 Sascha Arend</b></sub>
+</div>
