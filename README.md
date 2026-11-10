@@ -14,8 +14,6 @@
 <p align="center">
   <a href="https://saschaarend.github.io/eZSuite/"><strong>🌐 Interaktive Landingpage & Config-Generator öffnen</strong></a>
   &nbsp;·&nbsp;
-  <a href="https://saschaarend.github.io/eZSuite/?download=installer"><strong>⬇️ Installer (update.bat) herunterladen</strong></a>
-  &nbsp;·&nbsp;
   <a href="#-schnellstart-in-60-sekunden"><strong>🚀 Installation</strong></a>
 </p>
 
