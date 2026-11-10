@@ -1,0 +1,77 @@
+{
+  "manifest_version": 3,
+  "name": "eZSuite",
+  "version": "3.0",
+  "description": "eZSuite vereint intelligente Zeiterfassung (eZTimeTracker), Dokumentations-Erstellung (eZNotes), Text-Transformation (eZClip) und dynamische Text-/Code-Snippets (eZSnippetZ) in einer zentralen Erweiterung.",
+  "copyright": "Copyright © 2026 Sascha Arend",
+  "permissions": [
+    "tabs",
+    "scripting",
+    "storage",
+    "downloads",
+    "unlimitedStorage",
+    "clipboardRead",
+    "clipboardWrite",
+    "contextMenus"
+  ],
+  "host_permissions": [
+    "<all_urls>"
+  ],
+  "background": {
+    "service_worker": "js/background.js"
+  },
+  "action": {
+    "default_title": "eZSuite",
+    "default_popup": "ui/popup.html",
+    "default_icon": {
+      "16": "icons/SuiteIcon.png",
+      "24": "icons/SuiteIcon.png",
+      "32": "icons/SuiteIcon.png",
+      "48": "icons/SuiteIcon.png",
+      "128": "icons/SuiteIcon.png"
+    }
+  },
+  "icons": {
+    "16": "icons/SuiteIcon.png",
+    "24": "icons/SuiteIcon.png",
+    "32": "icons/SuiteIcon.png",
+    "48": "icons/SuiteIcon.png",
+    "128": "icons/SuiteIcon.png"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "js/drawing_utils.js",
+        "js/content_script.js",
+        "js/snippetz_content.js"
+      ],
+      "all_frames": true,
+      "run_at": "document_start"
+    },
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "js/console_interceptor.js"
+      ],
+      "all_frames": true,
+      "run_at": "document_start",
+      "world": "MAIN"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "js/console_interceptor.js",
+        "config.json"
+      ],
+      "matches": [
+        "<all_urls>"
+      ]
+    }
+  ]
+}

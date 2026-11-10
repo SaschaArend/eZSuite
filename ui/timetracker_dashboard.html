@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <title>eZTimeTracker</title>
+  <link rel="icon" href="../icons/Icon.png" type="image/png">
+  <script src="../js/libs/jspdf.umd.min.js"></script>
+  <script src="../js/libs/jspdf.plugin.autotable.min.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    :root {
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --primary: #4f46e5;
+      --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+      --hover-bg: #f1f5f9;
+      --border-color: #e2e8f0;
+      --radius: 12px;
+      --sidebar-width: 320px;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .layout {
+      display: flex;
+      height: 100%;
+    }
+
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--card-bg);
+      border-right: 1px solid var(--border-color);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    .logo-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 24px;
+    }
+    .logo-container img { height: 48px; }
+
+    .tabs { display: flex; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; margin-bottom: 24px; padding: 4px; }
+    .tab {
+      flex: 1; padding: 8px; text-align: center; font-size: 12px; font-weight: 600;
+      border-radius: 6px; cursor: pointer; color: var(--text-muted);
+    }
+    .tab.active { background: var(--card-bg); color: var(--text-main); box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+
+    .tracker-status {
+      display: flex; justify-content: space-between; font-size: 10px; font-weight: 700;
+      color: var(--text-muted); text-transform: uppercase; margin-bottom: 8px;
+    }
+
+    .timer-display {
+      font-size: 48px; font-weight: 800; font-variant-numeric: tabular-nums;
+      text-align: center; margin-bottom: 24px; letter-spacing: -0.02em;
+    }
+
+    .warning-banner {
+      display: none; background: #fef2f2; border: 1px solid #fca5a5; color: #ef4444;
+      padding: 8px; border-radius: 6px; font-size: 11px; font-weight: 600; text-align: center; margin-bottom: 12px;
+    }
+
+    .input-group { margin-bottom: 12px; position: relative; }
+    .input-row { display: flex; gap: 8px; margin-bottom: 12px; }
+
+    input, textarea, select {
+      width: 100%; padding: 12px 14px; border: 1px solid var(--border-color);
+      border-radius: 8px; font-family: inherit; font-size: 13px;
+      background: var(--bg-color); color: var(--text-main);
+      box-sizing: border-box;
+    }
+    input:focus, textarea:focus, select:focus { outline: none; border-color: var(--primary); }
+    textarea { resize: vertical; min-height: 60px; }
+
+    button {
+      padding: 12px; background: var(--card-bg); border: 1px solid var(--border-color);
+      color: var(--text-main); border-radius: 8px; cursor: pointer;
+      font-size: 14px; font-weight: 600; transition: all 0.2s;
+    }
+    button.primary-btn {
+      background: var(--card-bg); color: var(--text-main); border: 1px solid var(--border-color); width: 100%;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); font-size: 16px; margin-top: 8px; margin-bottom: 24px;
+    }
+    button.primary-btn:hover { background: var(--hover-bg); }
+
+    button.accent-btn {
+      background: var(--primary-gradient); color: white; border: none;
+      box-shadow: 0 4px 8px rgba(79, 70, 229, 0.2);
+    }
+    button.accent-btn:hover { transform: translateY(-1px); box-shadow: 0 6px 12px rgba(79, 70, 229, 0.3); }
+
+    .sidebar-stats {
+      display: flex; justify-content: space-between; margin-top: auto; padding-top: 24px; border-top: 1px solid var(--border-color);
+    }
+    .sb-stat { text-align: center; }
+    .sb-stat-label { font-size: 10px; color: var(--text-muted); text-transform: uppercase; font-weight: 700; margin-bottom: 4px; }
+    .sb-stat-val { font-size: 14px; font-weight: 700; font-variant-numeric: tabular-nums; }
+
+    .main-content {
+      flex: 1; display: flex; flex-direction: column; overflow: hidden;
+    }
+
+    .top-bar {
+      display: flex; justify-content: space-between; align-items: flex-end; padding: 32px 32px 16px 32px;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .main-tabs { display: flex; gap: 24px; }
+    .main-tab {
+      font-size: 24px; font-weight: 700; color: var(--text-muted); cursor: pointer;
+      padding-bottom: 14px; margin-bottom: -17px; border-bottom: 3px solid transparent; transition: all 0.2s;
+    }
+    .main-tab.active { color: var(--text-main); border-bottom-color: var(--primary); }
+    .main-tab:hover:not(.active) { color: var(--text-main); }
+
+    .history-title { display: flex; align-items: center; gap: 12px; }
+    .week-sum-badge { font-size: 12px; background: var(--hover-bg); padding: 4px 8px; border-radius: 12px; color: var(--text-muted); display: none; margin-bottom: 16px;}
+
+    .top-actions { display: flex; gap: 16px; align-items: center; }
+
+    .search-box { padding: 8px 12px; border-radius: 20px; border: 1px solid var(--border-color); width: 250px; }
+
+    .period-controls { display: flex; align-items: center; gap: 8px; }
+    .period-filters {
+      display: flex; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden;
+    }
+    .period-filter {
+      padding: 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer; border-right: 1px solid var(--border-color);
+    }
+    .period-filter:last-child { border-right: none; }
+    .period-filter.active { background: var(--primary-gradient); color: white; }
+    .nav-btn { padding: 6px 10px; border-radius: 8px; font-size: 12px; }
+
+    .table-container {
+      flex: 1; overflow-y: auto; padding: 0 32px 32px 32px; position: relative;
+    }
+
+    table { width: 100%; border-collapse: collapse; border-spacing: 0; }
+    th, td { padding: 12px 8px; text-align: left; vertical-align: top; }
+    th { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; background: var(--bg-color); position: sticky; top: 0; z-index: 10; border-bottom: 1px solid var(--border-color); }
+    td { font-size: 13px; position: relative; border-bottom: 1px solid var(--border-color); }
+
+    tr.history-row:hover td { background: var(--hover-bg); }
+    .ticket-link { color: var(--primary); text-decoration: none; font-weight: 600; cursor: pointer; }
+    .ticket-link:hover { text-decoration: underline; }
+
+    .timeline-cell { position: relative; padding-left: 30px !important; }
+    .timeline-dot {
+      position: absolute; left: 8px; top: 50%; transform: translateY(-50%);
+      width: 10px; height: 10px; border-radius: 50%; border: 2px solid var(--border-color); background: var(--card-bg); z-index: 2;
+    }
+    .timeline-line {
+      position: absolute; left: 12px; top: 0; bottom: 0; width: 2px; background: var(--border-color); z-index: 1;
+    }
+
+    .play-btn {
+      background: var(--text-main); color: var(--card-bg); border-radius: 50%; width: 24px; height: 24px;
+      display: inline-flex; align-items: center; justify-content: center; font-size: 10px; cursor: pointer;
+      border: none; margin-left: 12px; transition: 0.2s;
+    }
+    .play-btn:hover { background: var(--primary); transform: scale(1.1); }
+
+    .day-group th {
+      font-weight: 700; background: var(--hover-bg) !important; font-size: 12px; padding: 8px 12px;
+      position: sticky; top: 37px; z-index: 9; color: var(--text-main); border-bottom: 1px solid var(--border-color);
+    }
+    .day-group.no-sticky th { position: static; }
+
+    .main-footer {
+      display: flex; justify-content: space-between; align-items: center; padding: 16px 32px;
+      background: var(--card-bg); border-top: 1px solid var(--border-color); font-size: 14px; font-weight: 700;
+    }
+
+    .modal-overlay {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(15, 23, 42, 0.5); display: none; justify-content: center; align-items: center; z-index: 100;
+    }
+    .modal {
+      background: var(--card-bg); border-radius: var(--radius); padding: 24px;
+      width: 500px; max-width: 90%; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    }
+    .modal h2 { font-size: 18px; margin-bottom: 16px; }
+    .modal-actions { display: flex; justify-content: flex-end; gap: 8px; margin-top: 24px; position: sticky; bottom: -24px; background: var(--card-bg); padding: 12px 0; border-top: 1px solid var(--border-color); }
+
+    .settings-section { margin-bottom: 24px; }
+    .settings-section h3 { font-size: 10px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; letter-spacing: 0.05em; }
+    .setting-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .setting-label { font-size: 13px; font-weight: 600; }
+    .setting-desc { font-size: 11px; color: var(--text-muted); }
+
+    .toggle-switch {
+      position: relative; display: inline-block; width: 36px; height: 20px;
+    }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .slider {
+      position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+      background-color: var(--border-color); transition: .4s; border-radius: 20px;
+    }
+    .slider:before {
+      position: absolute; content: ""; height: 16px; width: 16px; left: 2px; bottom: 2px;
+      background-color: white; transition: .4s; border-radius: 50%;
+    }
+    input:checked + .slider { background-color: var(--primary); }
+    input:checked + .slider:before { transform: translateX(16px); }
+
+    .format-box {
+      flex: 1; padding: 16px; text-align: center; border: 1px solid var(--border-color);
+      border-radius: 8px; cursor: pointer; transition: 0.2s; background: var(--card-bg);
+    }
+    .format-box:hover { border-color: var(--primary); }
+    .format-box.active { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary); background: var(--hover-bg); }
+
+    .ticket-attr { margin-bottom: 16px; }
+    .ticket-attr-label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-bottom: 4px; }
+    .ticket-attr-val { font-size: 14px; font-weight: 500; color: var(--text-main); }
+
+    .ticket-card {
+      background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; padding: 16px;
+      cursor: pointer; transition: 0.2s; box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+      display: flex; flex-direction: column; position: relative;
+    }
+    .ticket-card:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.05); }
+    .ticket-card.ticket-overdue { border-left: 4px solid #ef4444; }
+    .ticket-card.ticket-due-soon { border-left: 4px solid #f59e0b; }
+    .ticket-card-id { font-size: 11px; font-weight: 700; color: var(--primary); text-transform: uppercase; margin-bottom: 8px; }
+    .ticket-card-title { font-size: 14px; font-weight: 600; color: var(--text-main); margin-bottom: 12px; flex: 1; padding-right: 24px; }
+    .ticket-card-meta { font-size: 11px; color: var(--text-muted); display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px; }
+    .ticket-delete-btn {
+       position: absolute; top: 12px; right: 12px; font-size: 16px; color: var(--text-muted);
+       background: none; border: none; cursor: pointer; padding: 4px; border-radius: 4px; opacity: 0; transition: 0.2s;
+    }
+    .ticket-card:hover .ticket-delete-btn { opacity: 1; }
+    .ticket-delete-btn:hover { background: var(--hover-bg); color: #ef4444; }
+
+    .ticket-filters { display: flex; gap: 12px; margin-bottom: 24px; }
+    .ticket-filters select, .ticket-filters input {
+       padding: 8px 12px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 13px;
+    }
+
+    .view-toggle-btn { background: transparent; border: none; padding: 6px 8px; border-radius: 6px; cursor: pointer; transition: 0.2s; font-size: 14px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; opacity: 0.7; }
+    .view-toggle-btn:hover { background: rgba(0,0,0,0.05); opacity: 1; }
+    .view-toggle-btn.active { background: var(--card-bg); color: var(--text-main); box-shadow: 0 1px 2px rgba(0,0,0,0.1); opacity: 1; }
+
+    .ticket-card.list-mode { flex-direction: row; align-items: center; padding: 12px 16px; }
+    .ticket-card.list-mode .ticket-card-id { margin-bottom: 0; min-width: 100px; flex-shrink: 0; }
+    .ticket-card.list-mode .ticket-card-title { margin-bottom: 0; padding-right: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .ticket-card.list-mode .ticket-card-meta { flex-shrink: 0; min-width: 150px; justify-content: flex-end; }
+</style>
+</head>
+<body>
+  <div class="layout">
+
+    <div class="sidebar">
+      <div class="logo-container">
+        <img src="../assets/timetracker_logo.png" alt="Logo">
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" id="tabLive">Live</div>
+        <div class="tab" id="tabManual">Manual</div>
+      </div>
+
+      <div class="tracker-status">
+        <span id="sbStatus">BEREIT</span>
+        <span id="sbDate">--</span>
+      </div>
+
+      <div id="viewLive">
+        <div class="timer-display" id="sbTime">00:00:00</div>
+        <div id="warningBanner" class="warning-banner">⚠️ Timer läuft sehr lange!</div>
+      </div>
+
+      <div class="input-row" style="margin-bottom: 12px;">
+        <div class="input-group" style="flex:1; margin-bottom: 0;">
+          <input type="text" id="inpTicket" list="ticketList" placeholder="Ticketnummer" autocomplete="off">
+          <datalist id="ticketList"></datalist>
+        </div>
+        <div class="input-group" style="flex:1; margin-bottom: 0;">
+          <input type="text" id="inpDescShort" placeholder="Ticketbeschreib">
+        </div>
+      </div>
+      <div class="input-group">
+        <input type="text" id="inpTags" placeholder="Tags (kommagetrennt)">
+      </div>
+      <div class="input-group">
+        <textarea id="inpTask" placeholder="Beschreibung der Tätigkeit"></textarea>
+      </div>
+      <div class="input-group">
+        <textarea id="inpNotes" placeholder="Zusätzliche Notizen (optional)..."></textarea>
+      </div>
+
+      <div id="viewManualDates" style="display: none; margin-bottom: 12px;">
+        <div class="input-group">
+          <label style="font-size:11px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Start</label>
+          <input type="datetime-local" id="inpManualStart" step="1">
+        </div>
+        <div class="input-group">
+          <label style="font-size:11px; font-weight:600; color:var(--text-muted); display:block; margin-bottom:4px;">Ende</label>
+          <input type="datetime-local" id="inpManualEnd" step="1">
+        </div>
+      </div>
+
+      <button id="btnToggle" class="primary-btn">▶ Einstempeln</button>
+
+      <div class="sidebar-stats">
+        <div class="sb-stat">
+          <div class="sb-stat-label">Heute</div>
+          <div class="sb-stat-val" id="statSbToday">00:00</div>
+        </div>
+        <div class="sb-stat">
+          <div class="sb-stat-label">Woche</div>
+          <div class="sb-stat-val" id="statSbWeek">00:00</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="main-content">
+      <div class="top-bar">
+        <div class="main-tabs">
+          <div class="main-tab active" id="tabVerlauf">Verlauf</div>
+          <div class="main-tab" id="tabTickets">Tickets</div>
+          <div id="hdrWeekSum" class="week-sum-badge">Woche: 00:00</div>
+        </div>
+
+        <div class="top-actions" id="topActionsVerlauf">
+          <input type="text" id="inpSearch" class="search-box" placeholder="🔍 Kunde oder Tätigkeit suchen">
+
+          <div class="period-controls">
+            <button id="btnPrevPeriod" class="nav-btn">&lt;</button>
+            <div class="period-filters">
+              <div class="period-filter active" data-period="all">Alle</div>
+              <div class="period-filter" data-period="day">Tag</div>
+              <div class="period-filter" data-period="week">Woche</div>
+              <div class="period-filter" data-period="month">Monat</div>
+              <div class="period-filter" data-period="year">Jahr</div>
+            </div>
+            <button id="btnNextPeriod" class="nav-btn">&gt;</button>
+          </div>
+
+          <span style="font-size: 12px; font-weight: 600; width: 100px; text-align: center;" id="hdrCurrentPeriodLabel">Alle Zeiten</span>
+
+          <button id="btnOpenExport" style="padding: 6px 12px; font-size: 12px;">📥 Export</button>
+          <button id="btnSettings" style="padding: 6px 12px; font-size: 12px;">⚙️</button>
+        </div>
+      </div>
+
+      <div id="viewVerlaufMain" style="display: flex; flex-direction: column; flex: 1; overflow: hidden;">
+        <div class="table-container" id="tableContainer">
+          <table>
+            <thead>
+              <tr>
+                <th style="width: 15%">ZEITRAUM</th>
+                <th style="width: 15%">TICKETNUMMER</th>
+                <th style="width: 25%">TÄTIGKEIT</th>
+                <th style="width: 15%">TAGS</th>
+                <th style="width: 15%">NOTIZEN</th>
+                <th style="width: 15%; text-align: right;">DAUER</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody">
+
+            </tbody>
+          </table>
+        </div>
+
+        <div class="main-footer">
+          <small style="color: var(--text-muted);">eZSuite v3.0</small>
+          <span>Gesamtdauer (gefiltert) <span id="footerTotal" style="font-size: 18px; color: var(--primary);">00:00</span></span>
+        </div>
+      </div>
+
+      <div id="viewTicketsMain" style="display: none; flex-direction: column; flex: 1; overflow: hidden; padding: 24px; background: var(--bg-color);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px;">
+          <h2 style="font-size: 20px; font-weight: 700; margin: 0;">Deine YouTrack Tickets</h2>
+          <div>
+             <input type="file" id="fileImportCsv" accept=".csv" style="display: none;">
+             <button id="btnImportCsv" class="accent-btn" style="padding: 8px 16px; border-radius: 8px; font-weight: 600;">📥 CSV Importieren</button>
+          </div>
+        </div>
+
+        <div class="ticket-filters">
+          <input type="text" id="inpTicketSearch" placeholder="🔍 Volltextsuche..." style="flex: 1; min-width: 0;">
+          <select id="selTicketState" style="width: 200px; flex-shrink: 0;">
+            <option value="all">Alle Status</option>
+          </select>
+          <select id="selTicketSort" style="width: 200px; flex-shrink: 0;">
+            <option value="default">Standard</option>
+            <option value="due_asc">Fälligkeit (aufsteigend)</option>
+            <option value="due_desc">Fälligkeit (absteigend)</option>
+          </select>
+          <div style="display: flex; gap: 4px; flex-shrink: 0; background: var(--border-color); padding: 2px; border-radius: 8px;">
+            <button id="btnViewGrid" class="view-toggle-btn active" title="Raster">🔲</button>
+            <button id="btnViewList" class="view-toggle-btn" title="Liste">🪟</button>
+            <button id="btnViewTable" class="view-toggle-btn" title="Tabelle">📄</button>
+          </div>
+        </div>
+
+        <div id="ticketsList" style="flex: 1; overflow-y: auto;">
+
+        </div>
+      </div>
+    </div>
+
+  <div id="modalSettings" class="modal-overlay">
+    <div class="modal" style="width:700px; padding: 32px;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+        <h2 style="margin-bottom: 0; font-size: 24px;">Einstellungen</h2>
+        <button id="btnCloseSettings" style="background: none; border: none; font-size: 20px; cursor: pointer; padding: 4px; color: var(--text-muted);">&#10005;</button>
+      </div>
+
+      <div class="settings-section">
+        <h3>NAME (FÜR PDF EXPORT)</h3>
+        <div class="input-group">
+          <input type="text" id="setName" placeholder="👤 Ihr Name">
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h3>ERFASSUNG</h3>
+        <div style="border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden;">
+          <div class="setting-row" style="padding: 16px; margin: 0; border-bottom: 1px solid var(--border-color);">
+            <div>
+              <div class="setting-label">Zeiten runden</div>
+              <div class="setting-desc">Dauer auf ein festes Intervall auf- oder abrunden</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="setRounding">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="setting-row" style="padding: 16px; margin: 0; border-bottom: 1px solid var(--border-color);">
+            <div>
+              <div class="setting-label">Laufende Zeit erinnern</div>
+              <div class="setting-desc">Hinweis, wenn ein Timer länger als 8 Stunden läuft</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="setRemind8h" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="setting-row" style="padding: 16px; margin: 0; border-bottom: 1px solid var(--border-color);">
+            <div>
+              <div class="setting-label">Pomodoro-Modus</div>
+              <div class="setting-desc">Benachrichtigt alle 25 Minuten über eine 5-minütige Pause</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="setPomodoro">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="setting-row" style="padding: 16px; margin: 0;">
+            <div>
+              <div class="setting-label">Mini-Timer Widget</div>
+              <div class="setting-desc">Zeigt einen schwebenden Timer auf allen besuchten Webseiten</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="setShowWidget">
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h3>FIRMENLOGO & EXPORT</h3>
+        <div style="border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden;">
+          <div class="setting-row" style="padding: 16px; margin: 0; border-bottom: 1px solid var(--border-color);">
+            <div>
+              <div class="setting-label">Firmenlogo</div>
+              <div class="setting-desc">Für den PDF-Export hochladen</div>
+            </div>
+            <div style="display:flex; gap:8px; align-items:center;">
+              <img id="setLogoPreview" src="../assets/timetracker_logo.png" style="height:32px; border:1px solid var(--border-color); padding:2px; border-radius:4px; background:var(--bg-color);">
+              <input type="file" id="fileUpload" style="display:none;" accept="image/png, image/jpeg">
+              <button style="padding:8px 12px; font-size:12px; font-weight:600; border-radius:8px; border: 1px solid var(--border-color); background:none; cursor:pointer;" id="btnUploadLogo">Auswählen</button>
+              <button style="padding:8px 12px; font-size:12px; font-weight:600; border-radius:8px; border: 1px solid #fca5a5; background:none; color:#ef4444; cursor:pointer;" id="btnRemoveLogo">Entfernen</button>
+            </div>
+          </div>
+
+          <div class="setting-row" style="padding: 16px; margin: 0; border-bottom: 1px solid var(--border-color);">
+            <div>
+              <div class="setting-label">PDF Akzentfarbe</div>
+            </div>
+            <input type="color" id="setPdfColor" value="#4f46e5" style="width: 48px; height: 32px; padding: 2px; cursor: pointer; border-radius: 4px; border: 1px solid var(--border-color);">
+          </div>
+
+          <div class="setting-row" style="padding: 16px; margin: 0;">
+            <div style="flex: 1;">
+              <div class="setting-label">YouTrack Basis-URL</div>
+              <input type="text" id="setYouTrack" placeholder="https://it-systems.youtrack.cloud/issue/" style="width:100%; margin-top:8px;">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h3>DATENVERWALTUNG</h3>
+        <div style="border: 1px solid var(--border-color); border-radius: 8px; padding: 16px; display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <div class="setting-label">Backup</div>
+            <div class="setting-desc">Lade deine gesamten Zeiten als JSON herunter oder importiere sie</div>
+          </div>
+          <div style="display: flex; gap: 8px;">
+            <button id="btnDownloadBackup" style="padding:8px 16px; font-size:12px; font-weight:600; border-radius:8px; border: 1px solid var(--border-color); background:none; cursor:pointer;">💾 Backup (.json)</button>
+            <input type="file" id="fileImportBackup" style="display:none;" accept=".json">
+            <button id="btnImportBackup" style="padding:8px 16px; font-size:12px; font-weight:600; border-radius:8px; border: 1px solid var(--border-color); background:none; cursor:pointer;">📂 Import</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions" style="justify-content: flex-end; border-top: 1px solid var(--border-color); padding-top: 16px; margin-top: 24px;">
+        <button id="btnSaveSettings" class="accent-btn" style="margin:0; width:auto; padding: 12px 24px; border-radius: 8px; font-weight: 700;">Fertig</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modalTicketDetail" class="modal-overlay">
+    <div class="modal" style="width:900px; padding: 0; display: flex; flex-direction: column; overflow: hidden; max-height: 85vh;">
+      <div style="padding: 24px 32px; border-bottom: 1px solid var(--border-color); display: flex; justify-content: space-between; align-items: flex-start; flex-shrink: 0;">
+        <div>
+           <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 8px;" id="tdMeta">Erstellt von ... vor ...</div>
+           <h2 style="margin: 0; font-size: 22px; color: var(--text-main);" id="tdSummary">Zusammenfassung</h2>
+        </div>
+        <button id="btnCloseTicketDetail" style="background: none; border: none; font-size: 20px; cursor: pointer; padding: 4px; color: var(--text-muted);">&#10005;</button>
+      </div>
+
+      <div style="display: flex; flex: 1; overflow: hidden;">
+
+        <div style="flex: 2; padding: 32px; overflow-y: auto; border-right: 1px solid var(--border-color);">
+           <div id="tdDescription" style="font-size: 14px; line-height: 1.6; color: var(--text-main); white-space: pre-wrap;"></div>
+        </div>
+
+        <div style="flex: 1; padding: 32px; overflow-y: auto; background: var(--bg-color);">
+           <div class="ticket-attr">
+             <div class="ticket-attr-label">Projekt</div>
+             <div class="ticket-attr-val" id="tdProject">--</div>
+           </div>
+           <div class="ticket-attr">
+             <div class="ticket-attr-label">Type</div>
+             <div class="ticket-attr-val" id="tdType">--</div>
+           </div>
+           <div class="ticket-attr">
+             <div class="ticket-attr-label">Priority</div>
+             <div class="ticket-attr-val" id="tdPriority">--</div>
+           </div>
+           <div class="ticket-attr">
+             <div class="ticket-attr-label">State</div>
+             <div class="ticket-attr-val" id="tdState">--</div>
+           </div>
+           <div class="ticket-attr">
+             <div class="ticket-attr-label">Assignee</div>
+             <div class="ticket-attr-val" id="tdAssignee">--</div>
+           </div>
+           <div class="ticket-attr">
+             <div class="ticket-attr-label">Fälligkeit</div>
+             <div class="ticket-attr-val" id="tdDue">--</div>
+           </div>
+
+           <div style="margin-top: 48px;">
+             <button id="btnBookTicket" class="accent-btn" style="width: 100%; padding: 12px; border-radius: 8px; font-weight: 700; font-size: 14px;">▶ Auf Ticket buchen</button>
+           </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="modalExport" class="modal-overlay">
+    <div class="modal" style="width:700px; padding: 32px;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+        <div>
+          <h2 style="margin-bottom: 4px; font-size: 24px;">Exportieren</h2>
+          <div style="color: var(--text-muted); font-size: 13px;" id="expSubtitle">0 Einträge • 00:00</div>
+        </div>
+        <button id="btnCloseExport" style="background: none; border: none; font-size: 20px; cursor: pointer; padding: 4px; color: var(--text-muted);">&#10005;</button>
+      </div>
+
+      <div style="display: flex; gap: 32px; margin-bottom: 24px;">
+
+        <div style="flex: 1;">
+          <div class="settings-section">
+            <h3>FORMAT</h3>
+            <div style="display: flex; gap: 12px;">
+              <div class="format-box active" data-fmt="pdf" id="fmtPdf">
+                <div style="font-size: 24px; margin-bottom: 8px;">📄</div>
+                <div style="font-weight: 700;">PDF</div>
+              </div>
+              <div class="format-box" data-fmt="csv" id="fmtCsv">
+                <div style="font-size: 24px; margin-bottom: 8px;">🧮</div>
+                <div style="font-weight: 700;">CSV</div>
+              </div>
+              <div class="format-box" data-fmt="md" id="fmtMd">
+                <div style="font-size: 24px; margin-bottom: 8px;">📝</div>
+                <div style="font-weight: 700;">Markdown</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="flex: 1;">
+          <div class="settings-section">
+            <h3>ZEITRAUM</h3>
+            <div style="display: flex; background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 8px; padding: 4px;">
+              <div class="tab active" style="font-size: 11px;">Aktuelle Ansicht</div>
+              <div class="tab" style="font-size: 11px; opacity: 0.5; cursor: not-allowed;" title="Demnächst verfügbar">Eigener Zeitraum</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="settings-section">
+        <h3>TICKETNUMMER (OPTIONAL)</h3>
+        <select id="expTicketFilter" style="width: 100%;">
+          <option value="">Alle Ticketnummern</option>
+        </select>
+      </div>
+
+      <div class="settings-section">
+        <h3>INHALT</h3>
+        <div style="border: 1px solid var(--border-color); border-radius: 8px; overflow: hidden;">
+          <div class="setting-row" style="padding: 16px; margin: 0; border-bottom: 1px solid var(--border-color);">
+            <div>
+              <div class="setting-label">Neueste zuerst</div>
+              <div class="setting-desc">Sortierung von neu nach alt statt von alt nach neu</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="expSortNewest">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="setting-row" style="padding: 16px; margin: 0; border-bottom: 1px solid var(--border-color);">
+            <div>
+              <div class="setting-label">Nur Zeiten, ohne Tätigkeiten</div>
+              <div class="setting-desc">Kompakte Liste aus Datum, Start, Ende und Dauer</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="expTimesOnly">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="setting-row" style="padding: 16px; margin: 0;">
+            <div>
+              <div class="setting-label">Erstellungsdatum in der Fußzeile</div>
+              <div class="setting-desc">Datum und Uhrzeit des Exports auf jeder Seite</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="expShowDate" checked>
+              <span class="slider"></span>
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border-color);">
+        <div>
+          <div style="font-size: 10px; font-weight: 700; color: var(--text-muted); margin-bottom: 4px; text-transform: uppercase;">Datei</div>
+          <div style="font-family: monospace; font-size: 12px; color: var(--primary);" id="expFilename">eZTimeTracker-export.pdf</div>
+        </div>
+        <button id="btnDoExport" class="accent-btn" style="margin: 0; width: auto; padding: 12px 24px; border-radius: 8px; font-weight: 700;">📥 PDF exportieren</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="modalEdit" class="modal-overlay">
+    <div class="modal" style="width:700px; padding: 32px;">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+        <div>
+          <h2 style="margin-bottom: 4px; font-size: 24px;">Eintrag bearbeiten</h2>
+          <div style="color: var(--text-muted); font-size: 13px;" id="editSubtitle">--</div>
+        </div>
+        <button id="btnCloseEdit" style="background: none; border: none; font-size: 20px; cursor: pointer; padding: 4px; color: var(--text-muted);">&#10005;</button>
+      </div>
+      <input type="hidden" id="editIndex">
+
+      <div style="display: flex; gap: 32px; margin-bottom: 24px;">
+
+        <div style="flex: 2;">
+          <div class="input-row" style="margin-bottom: 12px;">
+            <div class="input-group" style="flex:1; margin-bottom: 0;">
+              <label style="font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px; display:block;">Ticketnummer</label>
+              <input type="text" id="editTicket">
+            </div>
+            <div class="input-group" style="flex:1; margin-bottom: 0;">
+              <label style="font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px; display:block;">Ticketbeschreibung</label>
+              <input type="text" id="editDescShort">
+            </div>
+          </div>
+          <div class="input-group">
+            <label style="font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px; display:block;">Tags</label>
+            <input type="text" id="editTags" placeholder="Tags (kommagetrennt)">
+          </div>
+          <div class="input-group">
+            <label style="font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px; display:block;">Tätigkeit</label>
+            <textarea id="editTask" style="min-height: 80px;" placeholder="Beschreibung der Tätigkeit"></textarea>
+          </div>
+          <div class="input-group">
+            <textarea id="editNotes" placeholder="Zusätzliche Notizen (optional)..." style="min-height: 60px;"></textarea>
+          </div>
+        </div>
+
+        <div style="flex: 1; border-left: 1px solid var(--border-color); padding-left: 32px;">
+          <div style="margin-bottom: 24px;">
+            <label style="font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px; display:block;">Dauer</label>
+            <div id="editDurCalc" style="font-size: 32px; font-weight: 800; font-variant-numeric: tabular-nums;">00:00:00</div>
+          </div>
+
+          <div class="input-group">
+            <label style="font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px; display:block;">Start</label>
+            <input type="datetime-local" id="editStart" step="1">
+          </div>
+          <div class="input-group">
+            <label style="font-size:10px; font-weight:700; color:var(--text-muted); text-transform:uppercase; margin-bottom:4px; display:block;">Ende</label>
+            <input type="datetime-local" id="editEnd" step="1">
+          </div>
+        </div>
+      </div>
+
+      <div class="modal-actions" style="justify-content: space-between; border-top: 1px solid var(--border-color); padding-top: 16px; margin-top: 0;">
+        <button id="btnDeleteEntry" style="background: none; border: 1px solid var(--border-color); color: var(--text-muted); padding: 8px 16px; border-radius: 8px; font-weight: 600;">🗑️ Löschen</button>
+        <button id="btnSaveEdit" class="accent-btn" style="margin:0; width:auto; padding: 8px 16px; border-radius: 8px; font-weight: 600;">Speichern</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/timetracker_dashboard.js"></script>
+</body>
+</html>

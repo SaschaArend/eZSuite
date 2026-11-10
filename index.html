@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>eZSuite 3.0 — Modular Productivity & ERP Engineering Suite for Chrome</title>
+  <meta name="description" content="Vier spezialisierte Werkzeuge in einer Chrome-Extension: eZNotes Prozessdokumentation, eZTimeTracker Zeiterfassung, eZClip Text-Studio und eZSnippetZ Code-Vault.">
+  <link rel="icon" href="icons/SuiteIcon.png" type="image/png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #fafafa;
+      --surface: #ffffff;
+      --surface-subtle: #f4f4f5;
+      --surface-dark: #09090b;
+      --surface-dark-2: #18181b;
+      --text: #09090b;
+      --text-secondary: #52525b;
+      --text-muted: #71717a;
+      --border: #e4e4e7;
+      --border-strong: #d4d4d8;
+      --accent: #4f46e5;
+      --accent-soft: #eef2ff;
+      --emerald: #10b981;
+      --amber: #f59e0b;
+      --radius: 12px;
+      --grid-max: 1220px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    body {
+      overflow-x: hidden;
+      background-image: radial-gradient(#d4d4d8 1px, transparent 1px);
+      background-size: 24px 24px;
+      background-position: -1px -1px;
+    }
+
+    code, pre, .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .page-shell {
+      max-width: var(--grid-max);
+      margin: 0 auto;
+      background: rgba(250, 250, 250, 0.92);
+      border-left: 1px solid var(--border);
+      border-right: 1px solid var(--border);
+      min-height: 100vh;
+    }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(255, 255, 255, 0.86);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+    }
+
+    .topbar-inner {
+      max-width: var(--grid-max);
+      margin: 0 auto;
+      height: 64px;
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text);
+    }
+
+    .brand img {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+    }
+
+    .brand-title {
+      font-weight: 800;
+      font-size: 16px;
+      letter-spacing: -0.03em;
+    }
+
+    .version-tag {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: var(--surface-subtle);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--text-secondary);
+      font-size: 13.5px;
+      font-weight: 500;
+      transition: color 0.15s;
+    }
+
+    .nav-links a:hover {
+      color: var(--text);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 9px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      border: 1px solid var(--border-strong);
+      background: var(--surface);
+      color: var(--text);
+      font-family: inherit;
+    }
+
+    .btn:hover {
+      background: var(--surface-subtle);
+      border-color: #a1a1aa;
+    }
+
+    .btn-dark {
+      background: var(--surface-dark);
+      color: #ffffff;
+      border-color: var(--surface-dark);
+    }
+
+    .btn-dark:hover {
+      background: #27272a;
+      border-color: #27272a;
+    }
+
+    .btn-accent {
+      background: var(--accent);
+      color: #ffffff;
+      border-color: var(--accent);
+    }
+
+    .btn-accent:hover {
+      background: #4338ca;
+      border-color: #4338ca;
+    }
+
+    .hero {
+      padding: 72px 48px 64px;
+      border-bottom: 1px solid var(--border);
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 56px;
+      align-items: center;
+      background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 5px 12px;
+      border-radius: 999px;
+      margin-bottom: 24px;
+    }
+
+    .eyebrow-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--emerald);
+    }
+
+    .hero h1 {
+      font-size: clamp(34px, 4vw, 50px);
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.08;
+      margin-bottom: 20px;
+      color: var(--text);
+    }
+
+    .hero-lead {
+      font-size: 16.5px;
+      line-height: 1.65;
+      color: var(--text-secondary);
+      margin-bottom: 32px;
+      max-width: 540px;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-bottom: 36px;
+    }
+
+    .hero-meta {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+    }
+
+    .meta-stat-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .meta-stat-value {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .interactive-stage {
+      background: var(--surface-subtle);
+      border: 1px solid var(--border-strong);
+      border-radius: 16px;
+      padding: 20px;
+      box-shadow: 0 24px 48px -12px rgba(9, 9, 11, 0.08);
+      position: relative;
+    }
+
+    .stage-label {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      font-size: 11px;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .popup-replica {
+      background: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 14px;
+      overflow: hidden;
+      box-shadow: 0 12px 24px -6px rgba(15, 23, 42, 0.12);
+    }
+
+    .replica-header {
+      background: #ffffff;
+      padding: 12px 16px 10px;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .replica-logos {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .replica-logo-btn {
+      background: none;
+      border: 1px solid transparent;
+      padding: 5px 8px;
+      border-radius: 8px;
+      cursor: pointer;
+      opacity: 0.4;
+      filter: grayscale(100%);
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+    }
+
+    .replica-logo-btn img {
+      height: 20px;
+      width: auto;
+      display: block;
+    }
+
+    .replica-logo-btn:hover {
+      opacity: 0.75;
+      background: #f1f5f9;
+    }
+
+    .replica-logo-btn.active {
+      opacity: 1;
+      filter: none;
+      background: #eef2ff;
+      border-color: #c7d2fe;
+      transform: scale(1.04);
+    }
+
+    .replica-dots {
+      display: flex;
+      gap: 6px;
+    }
+
+    .replica-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 999px;
+      background: #cbd5e1;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .replica-dot.active {
+      width: 18px;
+      background: var(--accent);
+    }
+
+    .replica-body {
+      padding: 18px;
+      min-height: 250px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .replica-panel {
+      display: none;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .replica-panel.active {
+      display: flex;
+    }
+
+    .replica-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 12px;
+    }
+
+    .replica-footer {
+      padding: 10px 16px;
+      background: #f1f5f9;
+      border-top: 1px solid #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: #64748b;
+    }
+
+    .module-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      border-bottom: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .strip-item {
+      padding: 24px 28px;
+      border-right: 1px solid var(--border);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+
+    .strip-item:last-child {
+      border-right: none;
+    }
+
+    .strip-item:hover {
+      background: var(--surface-subtle);
+    }
+
+    .strip-num {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .strip-item h3 {
+      font-size: 15px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      letter-spacing: -0.02em;
+    }
+
+    .strip-item p {
+      font-size: 12.5px;
+      color: var(--text-secondary);
+      line-height: 1.45;
+    }
+
+    .section-block {
+      padding: 72px 48px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-header {
+      max-width: 680px;
+      margin-bottom: 48px;
+    }
+
+    .section-kicker {
+      font-size: 11.5px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+
+    .section-header h2 {
+      font-size: 30px;
+      font-weight: 800;
+      letter-spacing: -0.035em;
+      margin-bottom: 12px;
+    }
+
+    .section-header p {
+      font-size: 15px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .bento-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 20px;
+    }
+
+    .bento-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 20px;
+      transition: border-color 0.2s;
+    }
+
+    .bento-card:hover {
+      border-color: #a1a1aa;
+    }
+
+    .col-7 { grid-column: span 7; }
+    .col-5 { grid-column: span 5; }
+    .col-6 { grid-column: span 6; }
+
+    .bento-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+
+    .bento-top img {
+      height: 26px;
+      width: auto;
+    }
+
+    .tech-pill {
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 6px;
+      background: var(--surface-subtle);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+    }
+
+    .bento-card h3 {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.025em;
+      margin-bottom: 8px;
+    }
+
+    .bento-card p {
+      font-size: 14px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    .spec-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-top: 14px;
+      padding-top: 14px;
+      border-top: 1px solid var(--border);
+    }
+
+    .spec-list li {
+      font-size: 13px;
+      color: var(--text);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .spec-list li span.bullet {
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .code-window {
+      background: var(--surface-dark);
+      color: #f4f4f5;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 1px solid #27272a;
+      font-size: 12px;
+    }
+
+    .code-window-bar {
+      background: var(--surface-dark-2);
+      padding: 8px 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: #a1a1aa;
+      font-size: 11px;
+      border-bottom: 1px solid #27272a;
+    }
+
+    .code-window pre {
+      padding: 14px;
+      overflow-x: auto;
+      line-height: 1.55;
+      tab-size: 4;
+    }
+
+    .hl-kw { color: #818cf8; }
+    .hl-var { color: #fbbf24; background: rgba(251, 191, 36, 0.14); padding: 1px 4px; border-radius: 4px; }
+    .hl-cmt { color: #71717a; }
+    .hl-str { color: #34d399; }
+
+    .configurator-box {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+      background: var(--surface);
+      border: 1px solid var(--border-strong);
+      border-radius: 16px;
+      padding: 32px;
+    }
+
+    .cfg-toggle-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin: 20px 0;
+    }
+
+    .cfg-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--bg);
+      cursor: pointer;
+      transition: border-color 0.15s;
+    }
+
+    .cfg-row:hover {
+      border-color: var(--accent);
+    }
+
+    .cfg-row-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .cfg-row-title {
+      font-size: 13.5px;
+      font-weight: 700;
+    }
+
+    .cfg-row-sub {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .cfg-checkbox {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    .steps-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .step-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .step-badge {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 3px 8px;
+      border-radius: 6px;
+      background: var(--surface-subtle);
+      border: 1px solid var(--border);
+      margin-bottom: 14px;
+    }
+
+    .step-card h4 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .step-card p {
+      font-size: 13.5px;
+      color: var(--text-secondary);
+      line-height: 1.55;
+    }
+
+    .mini-clip-btns {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .mini-clip-btn {
+      padding: 7px 4px;
+      font-size: 11px;
+      font-weight: 600;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      background: #ffffff;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .mini-clip-btn:hover {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    footer {
+      padding: 40px 48px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: var(--text-muted);
+      background: var(--surface);
+    }
+
+    @media (max-width: 980px) {
+      .hero, .configurator-box {
+        grid-template-columns: 1fr;
+      }
+      .module-strip {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .col-7, .col-5, .col-6 {
+        grid-column: span 12;
+      }
+      .steps-grid {
+        grid-template-columns: 1fr;
+      }
+      .hero, .section-block {
+        padding: 48px 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a href="#" class="brand">
+        <img src="icons/SuiteIcon.png" alt="eZSuite">
+        <span class="brand-title">eZSuite</span>
+        <span class="version-tag mono">v3.0 · MV3</span>
+      </a>
+      <nav class="nav-links">
+        <a href="#module">Module</a>
+        <a href="#erp-features">Infor LN & Engine</a>
+        <a href="#configurator">Rollout-Konfigurator</a>
+        <a href="#installation">Installation</a>
+      </nav>
+      <div style="display: flex; gap: 10px;">
+        <a href="update.bat" download="update.bat" class="btn">⬇ update.bat</a>
+        <a href="https://github.com/SaschaArend/eZSuite" target="_blank" rel="noopener" class="btn btn-dark">GitHub Repository →</a>
+      </div>
+    </div>
+  </header>
+
+  <div class="page-shell">
+    <section class="hero">
+      <div>
+        <div class="eyebrow">
+          <span class="eyebrow-dot"></span>
+          <span>Chrome Manifest V3 · Lokale Datenhaltung · Infor LN Ready</span>
+        </div>
+        <h1>Vier Werkzeuge.<br>Eine präzise Suite für den Engineering-Alltag.</h1>
+        <p class="hero-lead">
+          <strong>eZSuite</strong> bündelt automatische Klick-Dokumentation (<strong>eZNotes</strong>), Ticket-Zeiterfassung (<strong>eZTimeTracker</strong>), Clipboard-Transformation (<strong>eZClip</strong>) und einen dynamischen Code- &amp; Text-Vault (<strong>eZSnippetZ</strong>) direkt in Chrome – steuerbar über eine zentrale <code>config.json</code>.
+        </p>
+        <div class="hero-actions">
+          <a href="update.bat" download="update.bat" class="btn btn-accent">⬇ Installer (update.bat) laden</a>
+          <a href="#configurator" class="btn">⚙️ Eigene config.json erstellen</a>
+          <a href="https://github.com/SaschaArend/eZSuite/archive/refs/heads/main.zip" class="btn">📦 ZIP-Archiv</a>
+        </div>
+        <div class="hero-meta">
+          <div>
+            <div class="meta-stat-label">Architektur</div>
+            <div class="meta-stat-value mono">IndexedDB + FileSystem API</div>
+          </div>
+          <div>
+            <div class="meta-stat-label">Web-Expander</div>
+            <div class="meta-stat-value mono">// Trigger &amp; ContextMenu</div>
+          </div>
+          <div>
+            <div class="meta-stat-label">Rollout</div>
+            <div class="meta-stat-value mono">Modulare config.json</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="interactive-stage">
+        <div class="stage-label">
+          <span class="mono">INTERAKTIVE VORSCHAU — KLICKE AUF EIN LOGO</span>
+          <span class="mono" id="activePreviewName">01 / eZNotes</span>
+        </div>
+
+        <div class="popup-replica">
+          <div class="replica-header">
+            <div class="replica-logos">
+              <button type="button" class="replica-logo-btn active" data-tab="notes" title="eZNotes">
+                <img src="assets/logo.png" alt="eZNotes">
+              </button>
+              <button type="button" class="replica-logo-btn" data-tab="tracker" title="eZTimeTracker">
+                <img src="assets/timetracker_logo.png" alt="eZTimeTracker">
+              </button>
+              <button type="button" class="replica-logo-btn" data-tab="clip" title="eZClip">
+                <img src="assets/clip_logo.png" alt="eZClip">
+              </button>
+              <button type="button" class="replica-logo-btn" data-tab="snippetz" title="eZSnippetZ">
+                <img src="assets/snippetz_logo.png" alt="eZSnippetZ">
+              </button>
+            </div>
+            <div class="replica-dots">
+              <div class="replica-dot active" data-tab="notes"></div>
+              <div class="replica-dot" data-tab="tracker"></div>
+              <div class="replica-dot" data-tab="clip"></div>
+              <div class="replica-dot" data-tab="snippetz"></div>
+            </div>
+          </div>
+
+          <div class="replica-body">
+            <div class="replica-panel active" id="panel-notes">
+              <div style="font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase; letter-spacing: 0.06em;">Dokumentation Session</div>
+              <div class="replica-card" style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div style="font-size: 13px; font-weight: 700; color: #10b981;">● Aufzeichnung aktiv</div>
+                  <div style="font-size: 11px; color: #64748b;" class="mono">14 Schritte · Session: tdsls4100m000</div>
+                </div>
+                <span class="tech-pill mono">JPEG 85%</span>
+              </div>
+              <div class="replica-card" style="background: #0f172a; color: #f8fafc; font-size: 11.5px;">
+                <div style="color: #94a3b8; font-size: 10px; margin-bottom: 4px;" class="mono">AUTO-EXTRACTED ERP METADATA</div>
+                <div class="mono">Klick auf <span style="color: #34d399;">"tdsls400.ofbp"</span> (Kunde)</div>
+                <div style="color: #cbd5e1; font-size: 11px; margin-top: 4px;">Export: PDF Handbuch · YouTrack Markdown · Offline HTML Tour</div>
+              </div>
+            </div>
+
+            <div class="replica-panel" id="panel-tracker">
+              <div style="text-align: center; padding: 6px 0;">
+                <div style="font-size: 10px; font-weight: 800; color: #10b981; letter-spacing: 0.1em;">LIVE ZEITERFASSUNG</div>
+                <div id="demoTimer" class="mono" style="font-size: 34px; font-weight: 800; color: #0f172a; margin: 4px 0;">01:42:18</div>
+                <div style="font-size: 11.5px; color: #64748b;">Ticket <strong class="mono" style="color: #4f46e5;">#ERP-402</strong> · DAL Hook Erweiterung</div>
+              </div>
+              <div class="replica-card" style="display: flex; justify-content: space-between; font-size: 12px;">
+                <span style="color: #64748b;">Heute gesamt (inkl. 15m Rundung):</span>
+                <strong class="mono">05:30:00</strong>
+              </div>
+            </div>
+
+            <div class="replica-panel" id="panel-clip">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase;">Interaktiver eZClip Test</span>
+                <span style="font-size: 10px; color: #4f46e5; font-weight: 600;">Klicke eine Action ↓</span>
+              </div>
+              <textarea id="demoClipInput" class="mono" style="width: 100%; height: 82px; padding: 8px; border-radius: 8px; border: 1px solid #cbd5e1; font-size: 11.5px; resize: none;">  100045
+  100046
+  100045
+  100089  </textarea>
+              <div class="mini-clip-btns">
+                <button type="button" class="mini-clip-btn" data-clip="clean">🧹 Clean</button>
+                <button type="button" class="mini-clip-btn" data-clip="sql">🗄️ SQL IN</button>
+                <button type="button" class="mini-clip-btn" data-clip="unique">🔀 Unique</button>
+                <button type="button" class="mini-clip-btn" data-clip="upper">🔠 UPPER</button>
+              </div>
+            </div>
+
+            <div class="replica-panel" id="panel-snippetz">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <span style="font-size: 10px; font-weight: 800; color: #64748b; text-transform: uppercase;">Infor LN 4GL &amp; // Web-Expander</span>
+                <span class="tech-pill mono">//select</span>
+              </div>
+              <div class="code-window">
+                <pre class="mono" style="padding: 10px; font-size: 11px;">db.retry.point()
+<span class="hl-kw">select</span>	<span class="hl-var">${TABLE:tcibd001}</span>.*
+<span class="hl-kw">from</span>	<span class="hl-var">${TABLE:tcibd001}</span> <span class="hl-kw">for update</span>
+<span class="hl-kw">where</span>	<span class="hl-var">${TABLE:tcibd001}</span>._index1 = {:<span class="hl-var">{Key=i.item}</span>}
+<span class="hl-kw">selectdo</span>
+	<span class="hl-cmt">| Gültig bis: {Datum+14}</span>
+<span class="hl-kw">endselect</span></pre>
+              </div>
+            </div>
+          </div>
+
+          <div class="replica-footer">
+            <span>eZSuite v3.0 • Sascha Arend</span>
+            <span class="mono">config.json: 4/4 aktiv</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="module-strip">
+      <div class="strip-item" data-jump="notes">
+        <div class="strip-num mono"><span>01 / MODULE</span><span>📸</span></div>
+        <h3>eZNotes</h3>
+        <p>Automatische Prozess-Aufzeichnung, Verpixelung, Fokus-Marker, PDF- &amp; Offline-Tour-Export.</p>
+      </div>
+      <div class="strip-item" data-jump="tracker">
+        <div class="strip-num mono"><span>02 / MODULE</span><span>⏱️</span></div>
+        <h3>eZTimeTracker</h3>
+        <p>Live-Stempeluhr, YouTrack-Ticket-Import, 15-Minuten-Rundung und PDF/CSV-Berichte.</p>
+      </div>
+      <div class="strip-item" data-jump="clip">
+        <div class="strip-num mono"><span>03 / MODULE</span><span>📋</span></div>
+        <h3>eZClip</h3>
+        <p>Konfigurierbare Popup-Quick-Actions &amp; Studio für SQL-Listen, JSON, Case-Konvertierung &amp; RegEx.</p>
+      </div>
+      <div class="strip-item" data-jump="snippetz">
+        <div class="strip-num mono"><span>04 / MODULE</span><span>💻</span></div>
+        <h3>eZSnippetZ</h3>
+        <p>Code-Vault mit <code>//</code> Live-Expander, Infor LN 4GL Linter, Tabellen-Lexikon &amp; Variablen-Engine.</p>
+      </div>
+    </div>
+
+    <section class="section-block" id="module">
+      <div class="section-header">
+        <div class="section-kicker mono">Architektur &amp; Funktionsumfang</div>
+        <h2>Entwickelt für Consulting, Support &amp; Entwicklung.</h2>
+        <p>Keine Cloud-Abhängigkeit, keine externen Tracker: Alle Aufzeichnungen, Zeiten, Clips und Code-Snippets bleiben lokal im Browser bzw. synchronisiert mit deinem lokalen Dateisystem.</p>
+      </div>
+
+      <div class="bento-grid">
+        <div class="bento-card col-7">
+          <div>
+            <div class="bento-top">
+              <img src="assets/logo.png" alt="eZNotes">
+              <span class="tech-pill mono">IndexedDB Blob Storage · Smart-Crop</span>
+            </div>
+            <h3>Automatische Schritt-für-Schritt Dokumentation mit ERP-Erkennung</h3>
+            <p>
+              Jeder Klick während einer aktiven Session erzeugt automatisch einen zugeschnittenen JPEG-Screenshot (85% Qualität, binär in IndexedDB gespeichert für 80+ Schritte ohne RAM-Überlauf) und liest in ERP-Umgebungen Session- sowie Feldnamen direkt aus.
+            </p>
+            <ul class="spec-list">
+              <li><span class="bullet">→</span> <strong>DSGVO-Blur &amp; Marker:</strong> Sensible Daten verpixeln, Pfeile und Fokus-Rahmen mit unbegrenztem Undo/Redo setzen.</li>
+              <li><span class="bullet">→</span> <strong>Multi-Format-Export:</strong> Druckfertiges PDF-Handbuch, YouTrack-Markdown, interaktive Slideshow oder autarke Offline-HTML-Datei.</li>
+              <li><span class="bullet">→</span> <strong>Lokales Stammverzeichnis:</strong> Synchronisiert Dokumentationen direkt als <code>.json</code> auf die Festplatte inkl. Versionshistorie und Bulk-Merge.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="bento-card col-5">
+          <div>
+            <div class="bento-top">
+              <img src="assets/timetracker_logo.png" alt="eZTimeTracker">
+              <span class="tech-pill mono">YouTrack CSV · PDF Reports</span>
+            </div>
+            <h3>Präzise Zeiterfassung ohne Kontextwechsel</h3>
+            <p>
+              Starte und stoppe Zeiten direkt im Popup oder buche direkt auf importierte YouTrack-Tickets im Dashboard.
+            </p>
+            <ul class="spec-list">
+              <li><span class="bullet">→</span> <strong>15-Minuten-Intervallrundung</strong> &amp; 8-Stunden-Erinnerung</li>
+              <li><span class="bullet">→</span> <strong>PDF-Export mit eigenem Firmenlogo</strong> &amp; frei wählbarer Akzentfarbe</li>
+              <li><span class="bullet">→</span> <strong>CSV- &amp; Markdown-Export</strong> für schnelle Abrechnung</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="bento-card col-5" id="erp-features">
+          <div>
+            <div class="bento-top">
+              <img src="assets/clip_logo.png" alt="eZClip">
+              <span class="tech-pill mono">4 Quick-Actions · 14 Transformer</span>
+            </div>
+            <h3>Zwischenablage mit einem Klick bereinigen &amp; umwandeln</h3>
+            <p>
+              Belege bis zu 4 Schnellaktionen direkt im Popup (arbeiten ohne Öffnen eines Tabs direkt auf der Zwischenablage) oder nutze das Vollbild-Studio.
+            </p>
+            <ul class="spec-list">
+              <li><span class="bullet">→</span> <strong>SQL IN-Klausel Quoter:</strong> Macht aus kopierten Artikel- oder Auftragsnummern sofort <code>('1001', '1002')</code>.</li>
+              <li><span class="bullet">→</span> <strong>Dev-Tools:</strong> JSON-Formatter, Sort &amp; Unique, camelCase / snake_case, Base64, URL En/Decode und RegEx-Replace.</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="bento-card col-7">
+          <div>
+            <div class="bento-top">
+              <img src="assets/snippetz_logo.png" alt="eZSnippetZ">
+              <span class="tech-pill mono">Infor LN 4GL · // Web-Expander</span>
+            </div>
+            <h3>Code-Vault &amp; Live Text-Expander auf jeder Webseite</h3>
+            <p>
+              Vereint eine lokale Code-Bibliothek (inkl. Ordner-Synchronisation, Infor LN BaanC-Formatter, Linter und Tabellen-Lexikon) mit einem systemweiten Text-Expander direkt im Browser.
+            </p>
+            <div class="code-window" style="margin-top: 14px;">
+              <div class="code-window-bar">
+                <span>Dynamische Platzhalter-Syntax</span>
+                <span>Live-Vorschau beim Einfügen</span>
+              </div>
+              <pre class="mono"><span class="hl-cmt">| Tippe // in jedes Textfeld oder nutze Rechtsklick -> eZSnippetZ</span>
+Hallo <span class="hl-var">{Kunde=Max Mustermann}</span>,
+Priorität: <span class="hl-var">{Prio=[Hoch,Mittel,Tief]}</span> | Termin: <span class="hl-var">{Datum+14}</span>
+<span class="hl-var">{#if Notiz}</span>Hinweis: <span class="hl-var">{Notiz:multiline}</span><span class="hl-var">{/if}</span>
+Mit freundlichen Grüßen, <span class="hl-str">{Name}</span> <span class="hl-cmt">(Globale Variable)</span></pre>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-block" id="configurator">
+      <div class="section-header">
+        <div class="section-kicker mono">Team-Rollout &amp; Modul-Steuerung</div>
+        <h2>Interaktiver <code>config.json</code> Generator</h2>
+        <p>
+          Du möchtest bestimmten Mitarbeitern oder Abteilungen nur ausgewählte Tools bereitstellen? Stelle hier deine gewünschte Konfiguration zusammen und lege die heruntergeladene <code>config.json</code> einfach neben die <code>update.bat</code>.
+        </p>
+      </div>
+
+      <div class="configurator-box">
+        <div>
+          <h3 style="font-size: 17px; font-weight: 800; margin-bottom: 6px;">Sichtbare Module auswählen</h3>
+          <p style="font-size: 13px; color: var(--text-secondary);">Deaktivierte Module werden im Karussell, in den Einstellungen sowie im Hintergrund-Kontextmenü komplett ausgeblendet.</p>
+
+          <div class="cfg-toggle-list">
+            <label class="cfg-row">
+              <div class="cfg-row-info">
+                <span class="cfg-row-title">eZNotes</span>
+                <span class="cfg-row-sub">Prozess-Dokumentation, Screenshots, Editor &amp; Bibliothek</span>
+              </div>
+              <input type="checkbox" class="cfg-checkbox" id="chkNotes" checked>
+            </label>
+
+            <label class="cfg-row">
+              <div class="cfg-row-info">
+                <span class="cfg-row-title">eZTimeTracker</span>
+                <span class="cfg-row-sub">Stempeluhr, Dashboard, YouTrack-Tickets &amp; Zeit-Exporte</span>
+              </div>
+              <input type="checkbox" class="cfg-checkbox" id="chkTracker" checked>
+            </label>
+
+            <label class="cfg-row">
+              <div class="cfg-row-info">
+                <span class="cfg-row-title">eZClip</span>
+                <span class="cfg-row-sub">Clipboard Quick-Actions &amp; Text-Transformations-Studio</span>
+              </div>
+              <input type="checkbox" class="cfg-checkbox" id="chkClip" checked>
+            </label>
+
+            <label class="cfg-row">
+              <div class="cfg-row-info">
+                <span class="cfg-row-title">eZSnippetZ</span>
+                <span class="cfg-row-sub">Code- &amp; Text-Vault, // Web-Expander &amp; Infor LN 4GL Tools</span>
+              </div>
+              <input type="checkbox" class="cfg-checkbox" id="chkSnippetz" checked>
+            </label>
+          </div>
+
+          <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+            <button type="button" class="btn btn-accent" id="btnDownloadConfig">💾 config.json herunterladen</button>
+            <button type="button" class="btn" id="btnCopyConfig">📋 JSON kopieren</button>
+          </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; justify-content: space-between;">
+          <div class="code-window" style="height: 100%; display: flex; flex-direction: column;">
+            <div class="code-window-bar">
+              <span>%USERPROFILE%\eZSuite\config.json</span>
+              <span id="cfgActiveCount">4 von 4 aktiv</span>
+            </div>
+            <pre id="cfgPreviewCode" class="mono" style="flex: 1; font-size: 13px; padding: 20px;"></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section-block" id="installation" style="border-bottom: none;">
+      <div class="section-header">
+        <div class="section-kicker mono">Schnellstart &amp; Auto-Updater</div>
+        <h2>In 60 Sekunden einsatzbereit.</h2>
+        <p>Die mitgelieferte <code>update.bat</code> übernimmt sowohl die Erstinstallation inkl. Modul-Abfrage als auch spätere Versions-Updates direkt über GitHub.</p>
+      </div>
+
+      <div class="steps-grid">
+        <div class="step-card">
+          <span class="step-badge mono">SCHRITT 01</span>
+          <h4>update.bat ausführen</h4>
+          <p>Lade die <a href="update.bat" download="update.bat" style="color: var(--accent); font-weight: 600;">update.bat</a> herunter und starte sie. Bei einer Erstinstallation lädt sie automatisch das neueste Release von GitHub nach <code>%USERPROFILE%\eZSuite</code>.</p>
+        </div>
+        <div class="step-card">
+          <span class="step-badge mono">SCHRITT 02</span>
+          <h4>Module wählen (oder vorgeben)</h4>
+          <p>Beim ersten Start fragt das Skript ab, welche der 4 Tools du nutzen möchtest (oder übernimmt automatisch eine beigelegte <code>config.json</code>). Bei späteren Updates bleibt deine <code>config.json</code> unangetastet.</p>
+        </div>
+        <div class="step-card">
+          <span class="step-badge mono">SCHRITT 03</span>
+          <h4>In Chrome aktivieren</h4>
+          <p><code>update.bat</code> öffnet automatisch <code>chrome://extensions</code>. Aktiviere oben rechts den <strong>Entwicklermodus</strong> und wähle über <em>„Entpackte Erweiterung laden“</em> den Ordner aus.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      <div>
+        <strong>eZSuite v3.0</strong> · Entwickelt von Sascha Arend
+      </div>
+      <div class="mono" style="font-size: 12px;">
+        eZNotes · eZTimeTracker · eZClip · eZSnippetZ
+      </div>
+    </footer>
+  </div>
+
+  <script>
+    const tabNames = {
+      notes: '01 / eZNotes',
+      tracker: '02 / eZTimeTracker',
+      clip: '03 / eZClip',
+      snippetz: '04 / eZSnippetZ'
+    };
+
+    function switchPreviewTab(tabId) {
+      document.querySelectorAll('.replica-logo-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === tabId);
+      });
+      document.querySelectorAll('.replica-dot').forEach(dot => {
+        dot.classList.toggle('active', dot.dataset.tab === tabId);
+      });
+      document.querySelectorAll('.replica-panel').forEach(panel => {
+        panel.classList.toggle('active', panel.id === 'panel-' + tabId);
+      });
+      const label = document.getElementById('activePreviewName');
+      if (label && tabNames[tabId]) label.textContent = tabNames[tabId];
+    }
+
+    document.querySelectorAll('[data-tab]').forEach(el => {
+      el.addEventListener('click', () => switchPreviewTab(el.dataset.tab));
+    });
+
+    document.querySelectorAll('[data-jump]').forEach(el => {
+      el.addEventListener('click', () => {
+        switchPreviewTab(el.dataset.jump);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
+
+    let demoSec = 1 * 3600 + 42 * 60 + 18;
+    setInterval(() => {
+      demoSec++;
+      const h = String(Math.floor(demoSec / 3600)).padStart(2, '0');
+      const m = String(Math.floor((demoSec % 3600) / 60)).padStart(2, '0');
+      const s = String(demoSec % 60).padStart(2, '0');
+      const el = document.getElementById('demoTimer');
+      if (el) el.textContent = `${h}:${m}:${s}`;
+    }, 1000);
+
+    const demoClipInput = document.getElementById('demoClipInput');
+    document.querySelectorAll('[data-clip]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (!demoClipInput) return;
+        const mode = btn.dataset.clip;
+        const val = demoClipInput.value;
+        const lines = val.split(/\r?\n/).map(l => l.trim().replace(/^['"]+|['",]+$/g, '')).filter(Boolean);
+        if (mode === 'clean') {
+          demoClipInput.value = lines.join('\n');
+        } else if (mode === 'sql') {
+          demoClipInput.value = `(\n  ${lines.map(l => `'${l}'`).join(',\n  ')}\n)`;
+        } else if (mode === 'unique') {
+          demoClipInput.value = Array.from(new Set(lines)).sort().join('\n');
+        } else if (mode === 'upper') {
+          demoClipInput.value = val.toUpperCase();
+        }
+      });
+    });
+
+    const chkNotes = document.getElementById('chkNotes');
+    const chkTracker = document.getElementById('chkTracker');
+    const chkClip = document.getElementById('chkClip');
+    const chkSnippetz = document.getElementById('chkSnippetz');
+    const cfgPreviewCode = document.getElementById('cfgPreviewCode');
+    const cfgActiveCount = document.getElementById('cfgActiveCount');
+
+    function getCfgObject() {
+      if (!chkNotes.checked && !chkTracker.checked && !chkClip.checked && !chkSnippetz.checked) {
+        chkNotes.checked = true;
+      }
+      return {
+        eZNotes: chkNotes.checked,
+        eZTimeTracker: chkTracker.checked,
+        eZClip: chkClip.checked,
+        eZSnippetZ: chkSnippetz.checked
+      };
+    }
+
+    function updateCfgPreview() {
+      const cfg = getCfgObject();
+      const activeCount = Object.values(cfg).filter(Boolean).length;
+      cfgPreviewCode.textContent = JSON.stringify(cfg, null, 2);
+      cfgActiveCount.textContent = `${activeCount} von 4 aktiv`;
+    }
+
+    [chkNotes, chkTracker, chkClip, chkSnippetz].forEach(chk => {
+      chk.addEventListener('change', updateCfgPreview);
+    });
+    updateCfgPreview();
+
+    document.getElementById('btnDownloadConfig').addEventListener('click', () => {
+      const blob = new Blob([JSON.stringify(getCfgObject(), null, 2) + '\n'], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'config.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+
+    document.getElementById('btnCopyConfig').addEventListener('click', async (e) => {
+      await navigator.clipboard.writeText(JSON.stringify(getCfgObject(), null, 2));
+      const orig = e.target.textContent;
+      e.target.textContent = '✓ Kopiert!';
+      setTimeout(() => { e.target.textContent = orig; }, 1500);
+    });
+  </script>
+</body>
+</html>

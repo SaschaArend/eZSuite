@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="de">
+
+<head>
+  <meta charset="utf-8" />
+  <title>eZSuite</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+    :root {
+      --bg-color: #f8fafc;
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --primary: #4f46e5;
+      --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+      --hover-bg: #f1f5f9;
+      --border-color: #e2e8f0;
+      --input-bg: #ffffff;
+      --radius: 12px;
+      --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      width: 320px;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      transition: background-color 0.3s, color 0.3s;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .container {
+      padding: 16px;
+    }
+
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-color);
+      position: relative;
+    }
+
+    .quick-act-btn {
+      padding: 10px 0;
+      font-size: 18px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+      color: var(--text-main);
+    }
+
+    .quick-act-btn:hover {
+      background: #eff6ff;
+      border-color: var(--primary);
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px rgba(79, 70, 229, 0.15);
+    }
+
+    .carousel-container {
+      position: relative;
+      width: 240px;
+      height: 40px;
+      overflow: hidden;
+      cursor: grab;
+      display: flex;
+      align-items: center;
+      margin: 0 auto;
+    }
+
+    .carousel-container:active {
+      cursor: grabbing;
+    }
+
+    .carousel-track {
+      display: flex;
+      align-items: center;
+      gap: 30px;
+      transition: transform 0.28s cubic-bezier(0.25, 1, 0.5, 1);
+      will-change: transform;
+    }
+
+    .logo-item {
+      height: 20px;
+      width: auto;
+      max-width: 140px;
+      object-fit: contain;
+      cursor: pointer;
+      opacity: 0.35;
+      filter: grayscale(100%);
+      transition: all 0.25s ease;
+      flex-shrink: 0;
+    }
+
+    .logo-item:hover {
+      opacity: 0.7;
+      transform: scale(1.05);
+    }
+
+    .logo-item.active {
+      height: 24px;
+      opacity: 1;
+      filter: none;
+      transform: scale(1.06);
+      cursor: default;
+    }
+
+    .carousel-dots {
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+
+    .dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--border-color);
+      transition: all 0.25s ease;
+      cursor: pointer;
+    }
+
+    .dot.active {
+      width: 18px;
+      border-radius: 4px;
+      background: var(--primary);
+    }
+
+    h4 {
+      font-size: 16px;
+      font-weight: 800;
+      background: var(--primary-gradient);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.02em;
+    }
+
+    .section {
+      margin-bottom: 14px;
+    }
+
+    .section-title {
+      font-size: 9px;
+      font-weight: 800;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 8px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 12px;
+      box-shadow: var(--shadow);
+    }
+
+    .row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      gap: 12px;
+    }
+
+    .row:last-child {
+      margin-bottom: 0;
+    }
+
+    label {
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .toggle-switch {
+      position: relative;
+      display: inline-block;
+      width: 36px;
+      height: 20px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: var(--border-color);
+      transition: .3s;
+      border-radius: 20px;
+    }
+
+    .slider:before {
+      position: absolute;
+      content: "";
+      height: 14px;
+      width: 14px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+
+    input:checked+.slider {
+      background: var(--primary-gradient);
+    }
+
+    input:checked+.slider:before {
+      transform: translateX(16px);
+    }
+
+    button {
+      padding: 8px 12px;
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-main);
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-family: inherit;
+    }
+
+    button:hover {
+      background: var(--hover-bg);
+      border-color: var(--primary);
+    }
+
+    button.primary-btn {
+      background: var(--primary-gradient);
+      color: white;
+      border: none;
+      box-shadow: 0 4px 8px rgba(79, 70, 229, 0.2);
+    }
+
+    button.primary-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 12px rgba(79, 70, 229, 0.3);
+    }
+
+    .icon-btn {
+      padding: 6px;
+      min-width: 32px;
+    }
+
+    .footer {
+      padding: 12px;
+      background: var(--hover-bg);
+      text-align: center;
+      border-top: 1px solid var(--border-color);
+    }
+
+    #btnOpenSettings {
+      cursor: pointer;
+      opacity: 0.5;
+      transition: opacity 0.2s;
+      font-size: 14px;
+    }
+
+    #btnOpenSettings:hover {
+      opacity: 1;
+    }
+
+    small {
+      color: var(--text-muted);
+      font-size: 10px;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.4); }
+      70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+    }
+</style>
+</head>
+
+<body>
+  <div class="container">
+
+    <div class="header">
+
+      <div class="carousel-container" id="carouselContainer" title="Wischen oder klicken zum Wechseln">
+        <div class="carousel-track" id="carouselTrack">
+          <img id="logo-notes" class="logo-item" src="../assets/logo.png" alt="eZNotes" data-view="notes" title="eZNotes">
+          <img id="logo-tracker" class="logo-item" src="../assets/timetracker_logo.png" alt="eZTimeTracker" data-view="tracker" title="eZTimeTracker">
+          <img id="logo-clip" class="logo-item" src="../assets/clip_logo.png" alt="eZClip" data-view="clip" title="eZClip">
+          <img id="logo-snippetz" class="logo-item" src="../assets/snippetz_logo.png" alt="eZSnippetZ" data-view="snippetz" title="eZSnippetZ">
+        </div>
+      </div>
+
+      <div style="display: flex; align-items: center; gap: 8px;">
+        <button id="btnLibrary" class="icon-btn" title="Bibliothek öffnen">
+          📚
+        </button>
+      </div>
+    </div>
+
+    <div class="carousel-dots" id="carouselDots">
+      <div class="dot active" data-index="0" title="eZNotes"></div>
+      <div class="dot" data-index="1" title="eZTimeTracker"></div>
+      <div class="dot" data-index="2" title="eZClip"></div>
+      <div class="dot" data-index="3" title="eZSnippetZ"></div>
+    </div>
+
+    <div id="view-notes">
+      <div class="section">
+        <div class="section-title">Dokumentation Session</div>
+        <div class="card">
+          <div class="row" style="margin-bottom: 0;">
+            <div style="display: flex; flex-direction: column;">
+              <span id="sessionStatus" style="font-weight: 700; font-size: 12px; color: var(--text-muted);">Inaktiv</span>
+              <span id="sessionCount" style="font-size: 10px; color: var(--text-muted);">0 Schritte</span>
+            </div>
+            <div style="display: flex; gap: 6px;">
+              <button id="toggleSession" class="primary-btn" style="min-width: 70px;">Start</button>
+              <button id="pauseSession" style="display: none; min-width: 70px;">Pause</button>
+            </div>
+          </div>
+
+          <div id="sessionControls" style="margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--border-color);">
+            <button id="openEditor" style="width: 100%;">📝 Editor & Export</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-tracker" style="display: none;">
+      <div class="section" style="text-align: center; margin-top: 4px;">
+        <div id="tt-status" style="font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px;">BEREIT</div>
+        <div id="tt-time" style="font-size: 38px; font-weight: 700; color: var(--text-main); font-variant-numeric: tabular-nums; letter-spacing: -0.02em; line-height: 1;">00:00:00</div>
+      </div>
+
+      <div class="section">
+        <button id="tt-toggleBtn" class="primary-btn" style="width: 100%; padding: 11px; font-size: 13px;">▶ Einstempeln</button>
+      </div>
+
+      <div class="section">
+        <div class="row" style="margin-bottom: 10px;">
+          <span style="font-size: 12px; color: var(--text-muted); font-weight: 500;">Heute gesamt:</span>
+          <span id="tt-totalTime" style="font-size: 14px; font-weight: 700;">00:00:00</span>
+        </div>
+        <button id="tt-dashboardBtn" style="width: 100%;">
+          <svg style="width:14px;height:14px;margin-right:4px;" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+          Dashboard öffnen
+        </button>
+      </div>
+    </div>
+
+    <div id="view-clip" style="display: none;">
+      <div class="section" style="text-align: center; margin-top: 4px;">
+        <div style="font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px;">TEXT & CLIPBOARD SUITE</div>
+        <div style="font-size: 12.5px; font-weight: 600; color: var(--text-main); margin-bottom: 12px;">Transformieren, Bereinigen & Konvertieren</div>
+      </div>
+
+      <div class="section">
+        <button id="btnOpenClipApp" class="primary-btn" style="width: 100%; padding: 11px; font-size: 13px;">
+          🚀 eZClip Studio öffnen
+        </button>
+      </div>
+
+      <div class="section">
+        <div class="card" style="padding: 10px 12px;">
+          <div class="row" style="margin-bottom: 8px;">
+            <span style="font-size: 11px; font-weight: 700; color: var(--text-muted);">Quick-Actions (max. 4)</span>
+            <span id="btnConfigureActions" style="font-size: 11px; color: var(--primary); cursor: pointer; text-decoration: underline; font-weight: 600;" title="Aktionen auswählen">⚙️ Wählen</span>
+          </div>
+          <div id="quickActionsGrid" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;">
+
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="view-snippetz" style="display: none;">
+      <div class="section" style="text-align: center; margin-top: 4px;">
+        <div style="font-size: 10px; font-weight: 800; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 6px;">PERSONAL CODE & SNIPPET VAULT</div>
+        <div style="font-size: 12.5px; font-weight: 600; color: var(--text-main); margin-bottom: 12px;">Infor LN 4GL, SQL, XML & Vorlagen</div>
+      </div>
+
+      <div class="section">
+        <button id="btnOpenSnippetzApp" class="primary-btn" style="width: 100%; padding: 11px; font-size: 13px;">
+          💻 eZSnippetZ Vault öffnen
+        </button>
+      </div>
+
+      <div class="section">
+        <div class="card" style="padding: 10px 12px;">
+          <div class="row" style="margin-bottom: 6px;">
+            <span style="font-size: 11px; font-weight: 700; color: var(--text-muted);">Schnellzugriff (Favoriten)</span>
+            <span id="snippetzCountBadge" style="font-size: 10px; color: var(--primary); font-weight: 700;">0 Snippets</span>
+          </div>
+          <div id="popupSnippetzList" style="display: flex; flex-direction: column; gap: 5px; max-height: 92px; overflow-y: auto;">
+            <div style="text-align: center; color: var(--text-muted); font-size: 10px; padding: 8px 0;">Öffne den Vault zum Verwalten</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div id="updateBanner" style="display: none; margin: 10px 16px; padding: 8px 12px; background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 8px; font-size: 11px; color: #065f46; align-items: center; justify-content: space-between; box-shadow: 0 1px 2px rgba(0,0,0,0.05); animation: pulse 2s infinite;">
+    <span>🔄 <b>Update verfügbar!</b> (v<span id="remoteVersionText"></span>)</span>
+    <span style="font-weight: 700; cursor: pointer; text-decoration: underline;" id="btnUpdateInfo" title="Update-Anleitung anzeigen">Mehr Info</span>
+  </div>
+
+  <div class="footer" style="display: flex; align-items: center; justify-content: center; gap: 6px;">
+    <small>eZSuite v3.0 • Sascha Arend</small>
+    <span id="btnOpenSettings" title="Einstellungen">⚙️</span>
+  </div>
+
+  <div id="actionsModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.45); backdrop-filter: blur(4px); z-index: 110; align-items: flex-end; justify-content: center; opacity: 0; transition: opacity 0.3s ease;">
+    <div id="actionsModalContent" style="background: var(--bg-color); width: 100%; border-radius: 20px 20px 0 0; padding: 18px 16px 24px; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 -4px 20px rgba(0,0,0,0.15); max-height: 85vh; display: flex; flex-direction: column;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+        <div>
+          <h3 style="font-size: 14px; font-weight: 700; color: var(--text-main); margin: 0;">Quick-Actions wählen</h3>
+          <small id="actionsLimitText" style="font-size: 10px; color: var(--text-muted);">Wähle bis zu 4 Aktionen (ausgewählt: 2/4)</small>
+        </div>
+        <button id="btnCloseActionsModal" style="background: #e2e8f0; border: none; border-radius: 50%; width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #64748b; padding: 0; min-width: 26px;">✕</button>
+      </div>
+      <div id="actionsChecklist" class="card" style="padding: 6px 10px; overflow-y: auto; max-height: 250px; display: flex; flex-direction: column; gap: 6px;">
+
+      </div>
+    </div>
+  </div>
+
+  <div id="settingsModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); z-index: 100; align-items: flex-end; justify-content: center; opacity: 0; transition: opacity 0.3s ease;">
+    <div id="settingsModalContent" style="background: var(--bg-color); width: 100%; border-radius: 20px 20px 0 0; padding: 20px 16px 30px; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); box-shadow: 0 -4px 20px rgba(0,0,0,0.1);">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+        <h3 style="font-size: 16px; font-weight: 700; color: var(--text-main); margin: 0;">Einstellungen</h3>
+        <button id="btnCloseSettings" style="background: #e2e8f0; border: none; border-radius: 50%; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #64748b; padding: 0; min-width: 28px; box-shadow: none;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+        </button>
+      </div>
+      <div class="card" style="padding: 10px 12px; margin-bottom: 0;">
+        <div class="row">
+          <label>In Clipboard kopieren</label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="copyOnClick">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="row">
+          <label>Smart-Cropping (Fokus)</label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="smartCrop">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="row">
+          <label>Entwicklermodus</label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="devMode">
+            <span class="slider"></span>
+          </label>
+        </div>
+        <div class="row">
+          <label>RPA Automatisierung (Editor)</label>
+          <label class="toggle-switch">
+            <input type="checkbox" id="showRPA">
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/popup.js"></script>
+</body>
+
+</html>

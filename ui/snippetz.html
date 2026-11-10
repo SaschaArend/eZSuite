@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+  <meta charset="utf-8">
+  <title>eZSnippetZ - Personal Code & Snippet Vault</title>
+  <link rel="icon" href="../icons/SuiteIcon.png" type="image/png">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+    :root {
+      --bg-color: #f8fafc;
+      --sidebar-bg: rgba(255, 255, 255, 0.9);
+      --card-bg: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+      --primary: #4f46e5;
+      --primary-hover: #4338ca;
+      --primary-gradient: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+      --accent: #eff6ff;
+      --hover-bg: #f1f5f9;
+      --border-color: #e2e8f0;
+      --radius: 12px;
+      --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+      --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.07), 0 2px 4px -2px rgb(0 0 0 / 0.05);
+      --shadow-lg: 0 10px 20px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #e0e7ff 0%, #f8fafc 45%, #f1f5f9 100%);
+      color: var(--text-main);
+      height: 100vh;
+      overflow: hidden;
+      display: flex;
+    }
+
+    .app-container {
+      display: flex;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .sidebar {
+      width: 280px;
+      background: var(--sidebar-bg);
+      backdrop-filter: blur(12px);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      padding: 20px 16px;
+      transition: width 0.3s ease, padding 0.3s ease, opacity 0.2s;
+      z-index: 20;
+      flex-shrink: 0;
+    }
+
+    .app-container.focus-mode .sidebar {
+      width: 0;
+      padding: 20px 0;
+      opacity: 0;
+      overflow: hidden;
+      border-right: none;
+    }
+
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 0 8px 18px 8px;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 16px;
+    }
+
+    .sidebar-brand img {
+      height: 30px;
+      width: auto;
+    }
+
+    .sidebar-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 4px;
+    }
+
+    .nav-section {
+      margin-bottom: 20px;
+    }
+
+    .nav-section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 8px;
+      margin-bottom: 8px;
+    }
+
+    .nav-section h3 {
+      font-size: 10px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: var(--text-muted);
+    }
+
+    .nav-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+    }
+
+    .nav-item {
+      padding: 8px 10px;
+      border-radius: 8px;
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.15s ease;
+    }
+
+    .nav-item:hover {
+      background: var(--hover-bg);
+      color: var(--text-main);
+    }
+
+    .nav-item.active {
+      background: var(--primary-gradient);
+      color: #ffffff;
+      box-shadow: 0 4px 10px rgba(79, 70, 229, 0.25);
+    }
+
+    .folder-tree-sub {
+      margin-left: 14px;
+      padding-left: 8px;
+      border-left: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      margin-top: 2px;
+    }
+
+    .folder-del-btn {
+      margin-left: auto;
+      opacity: 0;
+      font-size: 11px;
+      padding: 2px 5px;
+      border-radius: 4px;
+      transition: opacity 0.15s;
+    }
+
+    .nav-item:hover .folder-del-btn {
+      opacity: 0.8;
+    }
+
+    .folder-del-btn:hover {
+      opacity: 1 !important;
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+    }
+
+    .sidebar-footer {
+      padding-top: 14px;
+      border-top: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .status-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--hover-bg);
+      padding: 6px 10px;
+      border-radius: 20px;
+      border: 1px solid var(--border-color);
+    }
+
+    .status-badge.connected {
+      color: #059669;
+      background: #ecfdf5;
+      border-color: #a7f3d0;
+    }
+
+    .main-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      min-width: 0;
+    }
+
+    .top-bar {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+      padding: 14px 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      box-shadow: var(--shadow-sm);
+      z-index: 10;
+    }
+
+    .search-group {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      max-width: 620px;
+    }
+
+    .search-box {
+      position: relative;
+      flex: 1;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 9px 14px 9px 34px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      background: #ffffff;
+      font-size: 13px;
+      font-family: inherit;
+      color: var(--text-main);
+      outline: none;
+      transition: all 0.2s;
+    }
+
+    .search-box input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.12);
+    }
+
+    .search-box .search-icon {
+      position: absolute;
+      left: 11px;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 13px;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+
+    select.select-input {
+      padding: 8px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border-color);
+      background: #ffffff;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-main);
+      font-family: inherit;
+      cursor: pointer;
+      outline: none;
+    }
+
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    button.btn {
+      padding: 8px 14px;
+      border-radius: 9px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      border: 1px solid var(--border-color);
+      background: #ffffff;
+      color: var(--text-main);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+      font-family: inherit;
+    }
+
+    button.btn:hover {
+      background: var(--hover-bg);
+      border-color: #cbd5e1;
+    }
+
+    button.btn-primary {
+      background: var(--primary-gradient);
+      color: #ffffff;
+      border: none;
+      box-shadow: 0 4px 10px rgba(79, 70, 229, 0.25);
+    }
+
+    button.btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 14px rgba(79, 70, 229, 0.35);
+    }
+
+    button.btn-icon {
+      padding: 8px 10px;
+    }
+
+    .snippets-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px 28px;
+    }
+
+    .snippet-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+      gap: 18px;
+    }
+
+    .app-container.compact .snippet-grid {
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 12px;
+    }
+
+    .snippet-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius);
+      padding: 16px;
+      box-shadow: var(--shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .snippet-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: var(--primary-gradient);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .snippet-card:hover {
+      transform: translateY(-3px);
+      border-color: #818cf8;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .snippet-card:hover::before {
+      opacity: 1;
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .card-title-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      flex: 1;
+    }
+
+    .card-title {
+      font-size: 14.5px;
+      font-weight: 700;
+      color: var(--text-main);
+    }
+
+    .card-folder-badge {
+      font-size: 10px;
+      font-weight: 600;
+      color: #6366f1;
+      background: #eef2ff;
+      padding: 2px 7px;
+      border-radius: 6px;
+      border: 1px solid #c7d2fe;
+    }
+
+    .card-actions {
+      display: flex;
+      gap: 4px;
+    }
+
+    .icon-action {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      border: 1px solid var(--border-color);
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .icon-action:hover {
+      background: #eff6ff;
+      border-color: var(--primary);
+      transform: scale(1.05);
+    }
+
+    .card-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+    }
+
+    .tag-pill {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 2px 8px;
+      border-radius: 12px;
+      background: #f1f5f9;
+      color: #475569;
+      border: 1px solid #e2e8f0;
+    }
+
+    .card-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.4;
+    }
+
+    .code-preview-box {
+      background: #0f172a;
+      color: #f8fafc;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid #1e293b;
+      position: relative;
+    }
+
+    .code-preview-header {
+      background: #1e293b;
+      padding: 5px 10px;
+      font-size: 10px;
+      font-weight: 600;
+      color: #94a3b8;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .code-preview-content {
+      padding: 10px 12px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11.5px;
+      line-height: 1.45;
+      max-height: 140px;
+      overflow-y: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .placeholder-hl {
+      background: rgba(245, 158, 11, 0.25);
+      color: #fbbf24;
+      padding: 1px 4px;
+      border-radius: 4px;
+      border: 1px solid rgba(245, 158, 11, 0.4);
+      font-weight: 600;
+    }
+
+    .app-container.compact .card-desc,
+    .app-container.compact .code-preview-box {
+      display: none;
+    }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.5);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 100;
+      padding: 20px;
+    }
+
+    .modal {
+      background: #ffffff;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 1050px;
+      max-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border-color);
+      overflow: hidden;
+    }
+
+    .modal-header {
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f8fafc;
+    }
+
+    .modal-header h2 {
+      font-size: 16px;
+      font-weight: 800;
+    }
+
+    .modal-body {
+      padding: 20px 24px;
+      overflow-y: auto;
+      display: flex;
+      gap: 20px;
+      flex: 1;
+    }
+
+    .form-col {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-width: 0;
+    }
+
+    .side-helper-col {
+      width: 300px;
+      border-left: 1px solid var(--border-color);
+      padding-left: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .form-group label {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      padding: 9px 12px;
+      border-radius: 8px;
+      border: 1px solid var(--border-color);
+      font-size: 13px;
+      font-family: inherit;
+      color: var(--text-main);
+      outline: none;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus {
+      border-color: var(--primary);
+    }
+
+    .block-item {
+      background: #f8fafc;
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .block-item-top {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .code-textarea {
+      width: 100%;
+      min-height: 150px;
+      background: #0f172a;
+      color: #f8fafc;
+      font-family: 'JetBrains Mono', monospace !important;
+      font-size: 12.5px !important;
+      line-height: 1.5;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #334155;
+      resize: vertical;
+      tab-size: 4;
+    }
+
+    .lint-msg {
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 6px;
+      display: none;
+    }
+
+    .lint-msg.warning {
+      display: block;
+      background: #fef3c7;
+      color: #92400e;
+      border: 1px solid #fde68a;
+    }
+
+    .lint-msg.error {
+      display: block;
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fecaca;
+    }
+
+    .drawer-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.4);
+      backdrop-filter: blur(3px);
+      display: none;
+      justify-content: flex-end;
+      z-index: 95;
+    }
+
+    .drawer-overlay.active {
+      display: flex;
+    }
+
+    .drawer {
+      width: 620px;
+      max-width: 90vw;
+      background: #ffffff;
+      height: 100%;
+      box-shadow: -8px 0 24px rgba(0, 0, 0, 0.12);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .drawer-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #f8fafc;
+    }
+
+    .drawer-body {
+      padding: 20px 24px;
+      overflow-y: auto;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .palette-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      backdrop-filter: blur(3px);
+      display: none;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 12vh;
+      z-index: 120;
+    }
+
+    .palette-box {
+      width: 540px;
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: var(--shadow-lg);
+      border: 1px solid var(--border-color);
+      overflow: hidden;
+    }
+
+    .palette-input-row {
+      display: flex;
+      align-items: center;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border-color);
+      gap: 10px;
+    }
+
+    .palette-input-row input {
+      border: none;
+      outline: none;
+      width: 100%;
+      font-size: 14px;
+      font-family: inherit;
+    }
+
+    .palette-list {
+      max-height: 300px;
+      overflow-y: auto;
+      padding: 6px;
+    }
+
+    .palette-item {
+      padding: 9px 12px;
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .palette-item:hover,
+    .palette-item.selected {
+      background: #eff6ff;
+      color: var(--primary);
+      font-weight: 600;
+    }
+
+    #toast {
+      position: fixed;
+      bottom: 24px;
+      right: 28px;
+      background: #0f172a;
+      color: #ffffff;
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+      box-shadow: var(--shadow-lg);
+      opacity: 0;
+      transform: translateY(12px);
+      transition: all 0.2s ease;
+      pointer-events: none;
+      z-index: 200;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+</style>
+</head>
+
+<body>
+  <div class="app-container" id="appContainer">
+
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <img src="../assets/snippetz_logo.png" alt="eZSnippetZ">
+      </div>
+
+      <div class="sidebar-scroll">
+        <div class="nav-section">
+          <div class="nav-section-header">
+            <h3>Bibliothek</h3>
+          </div>
+          <ul class="nav-list" id="categoryNav">
+            <li class="nav-item active" data-filter="all">📚 Alle Snippets</li>
+            <li class="nav-item" data-filter="favorites">⭐ Favoriten</li>
+            <li class="nav-item" data-filter="recent">🕒 Zuletzt erstellt</li>
+            <li class="nav-item" data-filter="trash">🗑️ Papierkorb</li>
+          </ul>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-header">
+            <h3>Ordner</h3>
+            <button class="btn" id="btnAddFolder" style="padding: 2px 6px; font-size: 11px;" title="Neuer Ordner">+ Ordner</button>
+          </div>
+          <ul class="nav-list" id="folderNav">
+
+          </ul>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-header">
+            <h3>Tags / Kategorien</h3>
+          </div>
+          <ul class="nav-list" id="tagNav">
+
+          </ul>
+        </div>
+      </div>
+
+      <div class="sidebar-footer">
+        <button class="btn" id="btnConnectFolder" style="width: 100%;">
+          📁 Ordner verbinden (Sync)
+        </button>
+        <div class="status-badge" id="connectionBadge">
+          <span>ℹ️ Lokaler Browser-Speicher</span>
+        </div>
+      </div>
+    </aside>
+
+    <main class="main-area">
+      <header class="top-bar">
+        <div class="search-group">
+          <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" id="searchInput" placeholder="Suche nach Titel, Beschreibung, Tags oder Code... (Strg+K)">
+          </div>
+          <select id="sortSelect" class="select-input">
+            <option value="newest">Zuletzt erstellt</option>
+            <option value="alphabetical">Alphabetisch (A-Z)</option>
+            <option value="most-copied">Meist kopiert</option>
+          </select>
+        </div>
+
+        <div class="top-actions">
+          <button class="btn btn-icon" id="btnToggleCompact" title="Kompakt-/Kartenansicht umschalten">📋 Ansicht</button>
+          <button class="btn btn-icon" id="btnToggleFocus" title="Sidebar ein-/ausblenden">🔲 Fokus</button>
+          <button class="btn btn-icon" id="btnGlobalVars" title="Globale Variablen verwalten">⚙️ Variablen</button>
+          <button class="btn btn-icon" id="btnSyntaxHelp" title="Syntax & Platzhalter Hilfe">❓ Hilfe</button>
+          <button class="btn btn-icon" id="btnImportJson" title="JSON Snippets importieren">📥 Import</button>
+          <button class="btn btn-icon" id="btnExportJson" title="Backup als JSON exportieren">📤 Export</button>
+          <button class="btn btn-primary" id="btnNewSnippet">➕ Neues Snippet</button>
+        </div>
+      </header>
+
+      <div class="snippets-scroll">
+        <div class="snippet-grid" id="snippetsGrid">
+
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal-overlay" id="editModalOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 id="modalTitle">Neues Snippet</h2>
+        <button class="btn" id="btnCloseEditModal" style="padding: 4px 10px;">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="snippetForm" class="form-col">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Titel *</label>
+              <input type="text" id="inpTitle" placeholder="z.B. Select tccom100 Retry" required>
+            </div>
+            <div class="form-group">
+              <label>Ordner / Pfad</label>
+              <input type="text" id="inpFolder" list="folderSuggestions" placeholder="z.B. DAL oder PRGGUIDE/functions">
+              <datalist id="folderSuggestions"></datalist>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Beschreibung</label>
+              <input type="text" id="inpDesc" placeholder="Kurze Erklärung zum Snippet...">
+            </div>
+            <div class="form-group">
+              <label>Tags (kommagetrennt)</label>
+              <input type="text" id="inpTags" placeholder="z.B. Infor LN, SQL, DAL, BOD">
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 6px;">
+            <label style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">Code- & Text-Blöcke</label>
+            <div style="display: flex; gap: 8px;">
+              <select id="patternSelector" class="select-input" style="padding: 5px 10px; font-size: 11.5px;">
+                <option value="">⚡ Infor LN / XML Vorlage einfügen...</option>
+                <optgroup label="SQL / Database (Infor LN)">
+                  <option value="select">Select Record (mit Retry)</option>
+                  <option value="update">Update Record (for update + Retry)</option>
+                  <option value="insert">Insert Record (db.insert)</option>
+                </optgroup>
+                <optgroup label="Component / Extension Hooks">
+                  <option value="dal-hook">DAL Standard Hooks (before/after save)</option>
+                  <option value="ui-hook">UI Choice Hooks (choice.again)</option>
+                </optgroup>
+                <optgroup label="Integration">
+                  <option value="bod-xml">Infor ION SyncBOD XML</option>
+                </optgroup>
+              </select>
+              <button type="button" class="btn" id="btnAddBlock" style="padding: 5px 10px; font-size: 11.5px;">+ Block hinzufügen</button>
+            </div>
+          </div>
+
+          <div id="blocksContainer">
+
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 8px; padding-top: 12px; border-top: 1px solid var(--border-color);">
+            <button type="button" class="btn" id="btnCancelModal">Abbrechen</button>
+            <button type="submit" class="btn btn-primary">💾 Snippet speichern</button>
+          </div>
+        </form>
+
+        <div class="side-helper-col">
+          <div style="font-size: 11px; font-weight: 800; color: var(--text-muted); text-transform: uppercase;">📖 Infor LN Tabellen-Lexikon</div>
+          <input type="text" id="dictSearch" placeholder="Tabelle suchen (z.B. tccom100, tcibd001)..." style="padding: 7px 10px; border-radius: 8px; border: 1px solid var(--border-color); font-size: 12px;">
+          <div id="dictResults" style="flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px;"></div>
+
+          <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 10px; font-size: 11px; color: #1e40af; line-height: 1.4;">
+            <b>💡 Tipp: Dynamische Variablen</b><br>
+            Nutze <code>${TABELLE:tccom100}</code> oder <code>{FELD}</code> im Code. Beim Kopieren fragt eZSnippetZ automatisch nach den Werten! Mit <code>[[Snippet-Titel]]</code> bindest du andere Snippets ein.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="varModalOverlay">
+    <div class="modal" style="max-width: 580px;">
+      <div class="modal-header">
+        <h2>⚡ Platzhalter ausfüllen</h2>
+        <button class="btn" id="btnCloseVarModal" style="padding: 4px 10px;">✕</button>
+      </div>
+      <form id="varForm" style="padding: 20px 24px; display: flex; flex-direction: column; gap: 14px; overflow-y: auto;">
+        <p style="font-size: 12px; color: var(--text-muted);">Dieses Snippet enthält dynamische Variablen. Fülle sie vor dem Kopieren aus:</p>
+        <div id="varInputsContainer" style="display: flex; flex-direction: column; gap: 10px;"></div>
+        <div class="form-group" style="margin-top: 4px;">
+          <label>👁️ Live-Vorschau</label>
+          <textarea id="varLivePreview" readonly style="min-height: 110px; max-height: 200px; background: #0f172a; color: #f8fafc; font-family: 'JetBrains Mono', monospace; font-size: 11.5px; resize: vertical;"></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 10px;">📋 Ausfüllen & Kopieren</button>
+      </form>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="globalVarsModalOverlay">
+    <div class="modal" style="max-width: 520px;">
+      <div class="modal-header">
+        <h2>⚙️ Globale Variablen</h2>
+        <button class="btn" id="btnCloseGlobalVarsModal" style="padding: 4px 10px;">✕</button>
+      </div>
+      <div style="padding: 20px 24px; display: flex; flex-direction: column; gap: 14px; overflow-y: auto;">
+        <p style="font-size: 12px; color: var(--text-muted); line-height: 1.45;">
+          Globale Variablen wie <code>{Name}</code> oder <code>{Abteilung}</code> werden in allen Snippets und beim Tippen mit <code>//</code> automatisch ohne Rückfrage eingesetzt.
+        </p>
+        <div id="globalVarsList" style="display: flex; flex-direction: column; gap: 8px; max-height: 300px; overflow-y: auto;"></div>
+        <button type="button" class="btn" id="btnAddGlobalVar" style="align-self: flex-start;">+ Variable hinzufügen</button>
+        <div style="display: flex; justify-content: flex-end; gap: 8px; padding-top: 12px; border-top: 1px solid var(--border-color);">
+          <button type="button" class="btn" id="btnCancelGlobalVars">Abbrechen</button>
+          <button type="button" class="btn btn-primary" id="btnSaveGlobalVars">💾 Speichern</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="helpModalOverlay">
+    <div class="modal" style="max-width: 680px;">
+      <div class="modal-header">
+        <h2>❓ eZSnippetZ – Syntax & Features</h2>
+        <button class="btn" id="btnCloseHelpModal" style="padding: 4px 10px;">✕</button>
+      </div>
+      <div style="padding: 20px 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 14px; font-size: 12.5px; line-height: 1.5;">
+        <div style="background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 10px; padding: 12px 14px; color: #312e81;">
+          <b>⚡ Live Web-Expander (Überall im Browser):</b><br>
+          Tippe in einem beliebigen Textfeld auf einer Webseite einfach <code>//</code> (z.B. <code>//select</code>) oder nutze das <b>Rechtsklick-Menü → eZSnippetZ einfügen</b>, um Snippets direkt einzufügen!
+        </div>
+        <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+          <thead>
+            <tr style="border-bottom: 2px solid var(--border-color); text-align: left; color: var(--text-muted);">
+              <th style="padding: 6px 8px;">Platzhalter</th>
+              <th style="padding: 6px 8px;">Funktion / Beschreibung</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr style="border-bottom: 1px solid var(--border-color);">
+              <td style="padding: 7px 8px;"><code>{Kunde}</code> oder <code>${TABLE:tccom100}</code></td>
+              <td style="padding: 7px 8px;">Fragt beim Kopieren/Einfügen nach dem Wert (optional mit Standardwert).</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border-color);">
+              <td style="padding: 7px 8px;"><code>{Name=Max}</code></td>
+              <td style="padding: 7px 8px;">Textfeld mit vorausgefülltem Standardwert <i>Max</i>.</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border-color);">
+              <td style="padding: 7px 8px;"><code>{Prio=[Hoch,Mittel,Tief]}</code></td>
+              <td style="padding: 7px 8px;">Erzeugt ein Dropdown-Auswahlmenü.</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border-color);">
+              <td style="padding: 7px 8px;"><code>{Notiz:multiline}</code></td>
+              <td style="padding: 7px 8px;">Mehrzeiliges Textfeld im Abfrage-Dialog.</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border-color);">
+              <td style="padding: 7px 8px;"><code>{Kuerzel:uppercase}</code></td>
+              <td style="padding: 7px 8px;">Wandelt die Eingabe automatisch in GROSSBUCHSTABEN um (oder <code>:lowercase</code>).</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border-color);">
+              <td style="padding: 7px 8px;"><code>{Datum}</code> / <code>{Datum+14}</code></td>
+              <td style="padding: 7px 8px;">Aktuelles Datum (oder +X / -X Tage in der Zukunft/Vergangenheit).</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border-color);">
+              <td style="padding: 7px 8px;"><code>{Uhrzeit}</code> / <code>{Clipboard}</code></td>
+              <td style="padding: 7px 8px;">Aktuelle Uhrzeit bzw. aktueller Inhalt der Zwischenablage.</td>
+            </tr>
+            <tr style="border-bottom: 1px solid var(--border-color);">
+              <td style="padding: 7px 8px;"><code>{#if Var}Text{#else}Alt{/if}</code></td>
+              <td style="padding: 7px 8px;">Bedingter Textblock (wird nur ausgegeben, wenn <code>Var</code> ausgefüllt ist).</td>
+            </tr>
+            <tr>
+              <td style="padding: 7px 8px;"><code>[[Titel]]</code> oder <code>{Snippet:Titel}</code></td>
+              <td style="padding: 7px 8px;">Bindet den Inhalt eines anderen Snippets an dieser Stelle ein.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="drawer-overlay" id="viewDrawerOverlay">
+    <div class="drawer">
+      <div class="drawer-header">
+        <div>
+          <h2 id="drawerTitle" style="font-size: 16px; font-weight: 800;">Snippet Details</h2>
+          <small id="drawerPath" style="color: var(--text-muted); font-size: 11px;"></small>
+        </div>
+        <div style="display: flex; gap: 6px;">
+          <button class="btn" id="btnDrawerEdit">✏️ Bearbeiten</button>
+          <button class="btn" id="btnCloseDrawer">✕</button>
+        </div>
+      </div>
+      <div class="drawer-body">
+        <p id="drawerDesc" style="font-size: 13px; color: var(--text-muted);"></p>
+        <div id="drawerTags" class="card-tags"></div>
+        <div id="drawerBlocks" style="display: flex; flex-direction: column; gap: 14px;"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="palette-overlay" id="paletteOverlay">
+    <div class="palette-box">
+      <div class="palette-input-row">
+        <span>⌨️</span>
+        <input type="text" id="paletteInput" placeholder="Snippet schnell suchen und kopieren... (Enter zum Kopieren, Esc zum Schließen)">
+      </div>
+      <div class="palette-list" id="paletteList"></div>
+    </div>
+  </div>
+
+  <div id="toast">✨ Aktion ausgeführt</div>
+
+  <script src="../js/snippetz.js"></script>
+</body>
+
+</html>
