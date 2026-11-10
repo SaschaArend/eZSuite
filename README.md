@@ -1,12 +1,10 @@
-# eZSuite 🚀
+# eZSuite
 
 **eZSuite** ist eine modulare, hochperformante Chrome-Erweiterung, die vier spezialisierte Produktivitäts-Tools unter einer gemeinsamen Oberfläche vereint:
 1. **eZNotes** – Automatisierte Prozess-Dokumentation, Screenshots, Editor & RPA-Guides
 2. **eZTimeTracker** – Intelligente Zeiterfassung, Ticket-Integration & PDF/CSV/Markdown-Export
 3. **eZClip** – Text- & Clipboard-Studio mit Quick-Actions, Formatierung & Verlauf
 4. **eZSnippetZ** – Code- & Text-Snippet-Vault inkl. Infor LN 4GL Tools, `//` Live-Web-Expander & dynamischen Variablen
-
-![eZSuite Logo](assets/logo.png)
 
 ---
 
